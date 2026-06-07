@@ -21,17 +21,25 @@ type Config struct {
 	PORT       string
 }
 
-func load() *Config {
+func Load() *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No env file found,reading env files directly")
+		log.Println("No .env file found, reading OS environment variables")
 	}
+
 	cfg := &Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBName:     os.Getenv("DB_NAME"),
-		GroqAPIKey: os.Getenv("GROQAPIKEY"),
-		Port:       os.Getenv("PORT"),
+		DBHOST:     os.Getenv("DB_HOST"),
+		DBPORT:     os.Getenv("DB_PORT"),
+		DBUSER:     os.Getenv("DB_USER"),
+		DBPASSWORD: os.Getenv("DB_PASSWORD"),
+		DBNAME:     os.Getenv("DB_NAME"),
+		GROQAPIKEY: os.Getenv("GROQAPIKEY"),
+		PORT:       os.Getenv("PORT"),
 	}
+	if cfg.GROQAPIKEY == "" {
+		log.Println("WARNING:AI API KEY HAS NOT BEEN SET:")
+	}
+	if cfg.DBHOST == "" {
+		log.Println("WARNING :HOST HAS NOT BEEN SET")
+	}
+	return cfg
 }

@@ -15,4 +15,10 @@ func main() {
 	fmt.Printf("DB Port : %s\n", cfg.DBPORT)
 	fmt.Printf("DB Name : %s\n", cfg.DBNAME)
 	fmt.Printf("PORT : %s\n", cfg.PORT)
+
+	if cfg.GROQAPIKEY != "" {
+		fmt.Println("GROQ API KEY is also loaded and : SET")
+	} else {
+		fmt.Println("   Groq API Key: NOT SET ")
+	}
 }

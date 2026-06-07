@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
@@ -21,4 +22,5 @@ func main() {
 	} else {
 		fmt.Println("   Groq API Key: NOT SET ")
 	}
+	log.Println("Day 1 complete. Nothing is running yet — that comes later.")
 }

@@ -31,3 +31,19 @@ create table if not exists transcripts(
 DESCRIBE users;
 describe sessions;
 describe transcripts;
+
+
+create table if not exists evaluations(
+  id int AUTO_INCREMENT PRIMARY KEY,
+  transcript_id int not null,
+  topic varchar(500) not null,
+  content_score int not null,
+  fluency_score int not null,
+  grammar_score int not null,
+  overall_score int not null,
+  corrected_answer text not null,
+  created_at timestamp default CURRENT_TIMESTAMP,
+  FOREIGN KEY (transcript_id) REFERENCES transcripts(id)
+);
+
+DESCRIBE evaluations;

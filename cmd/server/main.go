@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
+	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 )
 
 func main() {
@@ -22,5 +23,19 @@ func main() {
 	} else {
 		fmt.Println("   Groq API Key: NOT SET ")
 	}
-	log.Println("Day 1 complete. Nothing is running yet — that comes later.")
+
+	database, err := db.Connect(
+		cfg.DBHOST,
+		cfg.DBPORT,
+		cfg.DBUSER,
+		cfg.DBPASSWORD,
+		cfg.DBNAME,
+	)
+
+	if err != nil {
+		log.Fatalf("databased connection has failed :%v", err)
+
+	}
+	defer database.Close()
+	log.Println("Day 2 complete. Nothing is running yet — that comes later.")
 }

@@ -13,16 +13,16 @@ func NewRouter() *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"*"} // meaning any websites can make http req to my api as of now ,//
-		AllowedMethods: []string{"GET","POST","OPTIONS"},
-		AllowedHeaders: :[]string{"Content-Type"},
+		AllowedOrigins: []string{"*"}, // meaning any websites can make http req to my api as of now ,//
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type"},
 	}))
 
-	r.Get("/health",handlers.HealthHandler)
+	r.Get("/health", handlers.HealthHandler)
 
-	r.Route("/api/v1",func (r chi.Router){
-		r.Get("/transcription",handlers.transcriptionHandler)
-		r.Get("/tutor",handlers.tutorHandler)
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Get("/transcription", handlers.transcriptionHandler)
+		r.Get("/tutor", handlers.tutorHandler)
 	})
 
 	return r

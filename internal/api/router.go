@@ -17,4 +17,13 @@ func NewRouter() *chi.Mux {
 		AllowedMethods: []string{"GET","POST","OPTIONS"},
 		AllowedHeaders: :[]string{"Content-Type"},
 	}))
+
+	r.Get("/health",handlers.HealthHandler)
+
+	r.Route("/api/v1",func (r chi.Router){
+		r.Get("/transcription",handlers.transcriptionHandler)
+		r.Get("/tutor",handlers.tutorHandler)
+	})
+
+	return r
 }

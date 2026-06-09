@@ -21,8 +21,8 @@ func NewRouter() *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/transcription", handlers.transcriptionHandler)
-		r.Get("/tutor", handlers.tutorHandler)
+		r.Get("/transcription", handlers.TranscriptionHandler)
+		r.Get("/tutor", handlers.TutorHandler)
 	})
 
 	return r

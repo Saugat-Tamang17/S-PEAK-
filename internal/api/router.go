@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewRouter() *chi.Mux {
+func NewRouter(groqAPIkey string) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -22,7 +22,7 @@ func NewRouter() *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Post("/transcription", handlers.TranscribeHandler)
+		r.Post("/transcription", handlers.TranscribeHandler(groqAPIkey))
 		r.Get("/tutor", handlers.TutorHandler)
 	})
 

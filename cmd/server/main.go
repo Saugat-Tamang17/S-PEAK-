@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
+	"github.com/Saugat-Tamang17/S-PEAK/internal/api"
 	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 )
 
@@ -37,5 +39,13 @@ func main() {
 
 	}
 	defer database.Close()
+
+	router := api.NewRouter(cfg.GROQAPIKEY)
+	log.Printf(" Server Starting on the Port :%s", cfg.PORT)
+
+	if err := http.ListenAndServe(": "+cfg.PORT, router); err != nil {
+		log.Fatalf("Server Failed:%v", err)
+	}
+
 	log.Println("Day 2 complete. Nothing is running yet — that comes later.")
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/Saugat-Tamang17/S-PEAK/internal/api/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -21,7 +22,7 @@ func NewRouter() *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/transcription", handlers.TranscriptionHandler)
+		r.Post("/transcription", handlers.TranscribeHandler)
 		r.Get("/tutor", handlers.TutorHandler)
 	})
 

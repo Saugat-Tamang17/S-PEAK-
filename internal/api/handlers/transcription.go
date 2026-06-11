@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/internal/services/groq"
@@ -23,6 +24,7 @@ func TranscribeHandler(apiKey string) http.HandlerFunc {
 
 		transcript, err := groq.Transcribe(apiKey, audioBytes, header.Filename)
 		if err != nil {
+			log.Printf("Transcription error: %v", err)
 			http.Error(w, "transcription failed", http.StatusInternalServerError)
 			return
 		}

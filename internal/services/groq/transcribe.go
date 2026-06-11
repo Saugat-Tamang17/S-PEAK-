@@ -15,7 +15,7 @@ type TranscribeResponse struct {
 	Text string `json:text`
 }
 
-func transcribe(apiKey string, audioData []byte, filename string) (string, error) {
+func Transcribe(apiKey string, audioData []byte, filename string) (string, error) {
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	part, err := writer.CreateFormFile("file", filename)

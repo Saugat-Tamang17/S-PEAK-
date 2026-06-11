@@ -32,7 +32,7 @@ func Load() *Config {
 		DBUSER:     os.Getenv("DB_USER"),
 		DBPASSWORD: os.Getenv("DB_PASSWORD"),
 		DBNAME:     os.Getenv("DB_NAME"),
-		GROQAPIKEY: os.Getenv("GROQAPIKEY"),
+		GROQAPIKEY: os.Getenv("GROQ_API_KEY"),
 		PORT:       os.Getenv("PORT"),
 	}
 	if cfg.GROQAPIKEY == "" {

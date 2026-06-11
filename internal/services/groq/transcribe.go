@@ -3,6 +3,7 @@ package groq
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 )
@@ -44,4 +45,15 @@ func transcribe(apiKey string, audioData []byte, filename string) (string, error
 	req.Header.Set(
 		"Content-Type", writer.FormDataContentType(),
 	)
+
+	//part4 : sending the req, now to the groq and receiviong the response //
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("Groq request sending failure:%w", err)
+	}
+	defer resp.Body.Close()
+
+	//reads the raw json groq sent as a response ( resp.Body)//
+	respBody, _ := io.ReadAll(resp.Body)
 }

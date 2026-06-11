@@ -2,6 +2,7 @@ package groq
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -56,4 +57,10 @@ func transcribe(apiKey string, audioData []byte, filename string) (string, error
 
 	//reads the raw json groq sent as a response ( resp.Body)//
 	respBody, _ := io.ReadAll(resp.Body)
+
+	//part5: deserializing from JSON -> GO STRUCT EAZY //
+	var result TranscribeResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse groq response: %w", err)
+	}
 }

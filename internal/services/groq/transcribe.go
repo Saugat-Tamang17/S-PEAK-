@@ -63,4 +63,10 @@ func transcribe(apiKey string, audioData []byte, filename string) (string, error
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", fmt.Errorf("failed to parse groq response: %w", err)
 	}
+
+	if result.Text == "" {
+		return "", fmt.Errorf("groq returned empty transcript — raw response: %s", string(respBody))
+	}
+
+	return result.Text, nil
 }

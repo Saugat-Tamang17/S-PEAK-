@@ -11,10 +11,16 @@ import (
 
 func TranscribeHandler(apiKey string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r.ParseMultipartForm(10 << 20) //meaning 10 MB max for audio form//
-
-		file, header, err := r.FormFile(("audio"))
+		err := r.ParseMultipartForm(10 << 20)
 		if err != nil {
+			log.Printf("ParseMultipartForm error: %v", err)
+			http.Error(w, "failed to parse form", http.StatusBadRequest)
+			return
+		}
+
+		file, header, err := r.FormFile("audio")
+		if err != nil {
+			log.Printf("FormFile error: %v", err)
 			http.Error(w, "audio file required", http.StatusBadRequest)
 			return
 		}

@@ -32,4 +32,16 @@ func transcribe(apiKey string, audioData []byte, filename string) (string, error
 		return "", fmt.Errorf("Failed to create Request : %w", err)
 	}
 
+	//part 3 :configuring the Req Headers //
+
+	//this block will add groq api key to my req //
+	req.Header.Set(
+		"Authorization",
+		"Bearer"+apiKey,
+	)
+
+	//tells groq what kinda data is inside req body //
+	req.Header.Set(
+		"Content-Type", writer.FormDataContentType(),
+	)
 }

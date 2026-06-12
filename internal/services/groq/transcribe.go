@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 )
@@ -25,7 +26,7 @@ func Transcribe(apiKey string, audioData []byte, filename string) (string, error
 	}
 
 	part.Write(audioData)
-	writer.WriteField("model", "whisper-large-v3")
+	writer.WriteField("model", "whisper-large-v3-turbo")
 	writer.Close()
 
 	//part 2 : this , hmm , ig this will be for creating http request objects ? //
@@ -37,10 +38,8 @@ func Transcribe(apiKey string, audioData []byte, filename string) (string, error
 	//part 3 :configuring the Req Headers //
 
 	//this block will add groq api key to my req //
-	req.Header.Set(
-		"Authorization",
-		"Bearer"+apiKey,
-	)
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	log.Printf("DEBUG sending auth header with key starting: %s", apiKey[:10])
 
 	//tells groq what kinda data is inside req body //
 	req.Header.Set(

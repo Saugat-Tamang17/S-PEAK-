@@ -13,7 +13,7 @@ import (
 const transcribeURL = "https://api.groq.com/openai/v1/audio/transcriptions"
 
 type TranscribeResponse struct {
-	Text string `json:text`
+	Text string `json:"text"`
 }
 
 func Transcribe(apiKey string, audioData []byte, filename string) (string, error) {

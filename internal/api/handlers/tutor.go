@@ -1,13 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
+	"database/sql"
 	"net/http"
+
+	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
 
-func TutorHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"Message": "Tutor endpoint - new features on the way",
-	})
+func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
+
 }

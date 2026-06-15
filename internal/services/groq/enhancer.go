@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
@@ -50,5 +51,15 @@ func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	return string(body), nil
+	respBody, _ := io.ReadAll(resp.Body)
+	var result EvaluateResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse enhance response: %w", err)
+	}
+
+	if len(result.Choices) == 0 || result.Choices[0].Message.Content == "" {
+		return "", fmt.Errorf("groq enhancer returned empty — raw: %s", string(respBody))
+	}
+
+	return result.Choices[0].Message.Content, nil
 }

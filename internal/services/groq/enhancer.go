@@ -1,11 +1,15 @@
 package groq
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
+	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
 
-func Enhance(apiKey string, rawTranscript string) (string, error) {
+func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	payload := map[string]interface{}{ // this is used for json-like structure
 		"model": "llama-3.3-70b-versatile",
 		"messages": []map[string]string{
@@ -31,5 +35,11 @@ func Enhance(apiKey string, rawTranscript string) (string, error) {
 		return "", fmt.Errorf("Failed to marshal the payload :%w", err)
 	}
 
+	req, err := http.NewRequest("POST", cfg.CHATURL, bytes.NewBuffer(body))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer"+cfg.GROQAPIKEY)
+	req.Header.Set("Content-Type", "application/json")
 	return string(body), nil
 }

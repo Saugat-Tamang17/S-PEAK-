@@ -16,8 +16,9 @@ payload :=map[string]interface{}{ //this is used for json like structure //
       "role":    "user",
       "content": rawTranscript,
     },
-},
-"max_tokens":1024, //approximate around 750 words per session //
+		"max_tokens":1024, //approximate around 750 words per session //
 
-"temperature":0.3, // low temperature =more conservative edits of transcripts 
+"temperature":0.3, // low temperature =more conservative edits of transcripts
+},
+ 
 }

@@ -26,3 +26,16 @@ func SaveTranscript(db *sql.DB, sessionID int64, raw, enhanced string) (int64, e
 	}
 	return result.LastInsertId()
 }
+
+// SaveEvaluation inserts tutor mode scores and feedback.
+func SaveEvaluation(db *sql.DB, transcriptID int64, topic string,
+	content, fluency, grammar, overall int, feedback, corrected string) error {
+
+	_, err := db.Exec(
+		`INSERT INTO evaluations 
+        (transcript_id, topic, content_score, fluency_score, grammar_score, overall_score, feedback, corrected_answer, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		transcriptID, topic, content, fluency, grammar, overall, feedback, corrected, time.Now(),
+	)
+	return err
+}

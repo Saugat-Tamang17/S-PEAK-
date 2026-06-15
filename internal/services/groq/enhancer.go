@@ -12,6 +12,10 @@ payload :=map[string]interface{}{ //this is used for json like structure //
 - Breaking run-on sentences
 - Preserving the speaker's original meaning and vocabulary.Return onlly the cleaned transcripted text.No commentary,no preamble. `,
 	},
+	{
+      "role":    "user",
+      "content": rawTranscript,
+    },
 },
 "max_tokens":1024,
 "temperature":0.3, // low temperature =more conservative edits of transcripts 

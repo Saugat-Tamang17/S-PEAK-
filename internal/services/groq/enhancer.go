@@ -10,6 +10,18 @@ import (
 	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
 
+type EvaluateResponse struct {
+	Choices []Choice `json:"choices"`
+}
+
+type Choice struct {
+	Message Message `json:"message"`
+}
+
+type Message struct {
+	Content string `json:"content"`
+}
+
 func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	payload := map[string]interface{}{ // this is used for json-like structure
 		"model": "llama-3.3-70b-versatile",

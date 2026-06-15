@@ -41,5 +41,14 @@ func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	}
 	req.Header.Set("Authorization", "Bearer"+cfg.GROQAPIKEY)
 	req.Header.Set("Content-Type", "application/json")
+
+	//sending our marshalled data to the ai now //
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("Groq Enhancer request failed:%w", err)
+	}
+	defer resp.Body.Close()
+
 	return string(body), nil
 }

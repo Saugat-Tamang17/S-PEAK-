@@ -42,6 +42,7 @@ create table if not exists evaluations(
   grammar_score int not null,
   overall_score int not null,
   corrected_answer text not null,
+  feedback text not null,
   created_at timestamp default CURRENT_TIMESTAMP,
   FOREIGN KEY (transcript_id) REFERENCES transcripts(id)
 );

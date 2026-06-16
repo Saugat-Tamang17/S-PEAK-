@@ -1,13 +1,16 @@
 package api
 
 import (
+	"database/sql"
+
+	"github.com/Saugat-Tamang17/S-PEAK/config"
 	"github.com/Saugat-Tamang17/S-PEAK/internal/api/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
-func NewRouter(groqAPIkey string) *chi.Mux {
+func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -22,8 +25,8 @@ func NewRouter(groqAPIkey string) *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Post("/transcription", handlers.TranscribeHandler(groqAPIkey))
-		r.Get("/tutor", handlers.TutorHandler)
+		r.Post("/transcription", handlers.TranscribeHandler(cfg, database))
+		r.Post("/tutor", handlers.TutorHandler(cfg, database))
 	})
 
 	return r

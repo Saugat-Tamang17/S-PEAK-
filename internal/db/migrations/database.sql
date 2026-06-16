@@ -50,3 +50,11 @@ create table if not exists evaluations(
 DESCRIBE evaluations;
 
 show TABLES;
+
+SELECT DATABASE();
+
+show tables;
+
+select *from users;
+INSERT IGNORE INTO users (id, email, password_hash) VALUES (1, 'test@speal.dev', 'placeholder');
+select *from users;

@@ -10,7 +10,7 @@ import (
 	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
 
-type EvaluateResponse struct {
+type EnhancerResponse struct {
 	Choices []Choice `json:"choices"`
 }
 
@@ -52,7 +52,7 @@ func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer"+cfg.GROQAPIKEY)
+	req.Header.Set("Authorization", "Bearer "+cfg.GROQAPIKEY)
 	req.Header.Set("Content-Type", "application/json")
 
 	//sending our marshalled data to the ai now //
@@ -64,7 +64,7 @@ func Enhance(cfg *config.Config, rawTranscript string) (string, error) {
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
-	var result EvaluateResponse
+	var result EnhancerResponse
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", fmt.Errorf("failed to parse enhance response: %w", err)
 	}

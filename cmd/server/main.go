@@ -40,7 +40,7 @@ func main() {
 	}
 	defer database.Close()
 
-	router := api.NewRouter(cfg.GROQAPIKEY)
+	router := api.NewRouter(cfg, database)
 	log.Printf(" Server Starting on the Port :%s", cfg.PORT)
 
 	if err := http.ListenAndServe(": "+cfg.PORT, router); err != nil {

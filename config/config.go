@@ -19,6 +19,7 @@ type Config struct {
 	//GROQ WILL COVER BOTH WHISPER STT AND LLM //
 	GROQAPIKEY string
 	PORT       string
+	CHATURL    string
 }
 
 func Load() *Config {
@@ -34,7 +35,9 @@ func Load() *Config {
 		DBNAME:     os.Getenv("DB_NAME"),
 		GROQAPIKEY: os.Getenv("GROQ_API_KEY"),
 		PORT:       os.Getenv("PORT"),
+		CHATURL:    os.Getenv("ChatURL"),
 	}
+	log.Printf("DEBUG key starts with: %s", cfg.GROQAPIKEY[:10])
 	if cfg.GROQAPIKEY == "" {
 		log.Println("WARNING:AI API KEY HAS NOT BEEN SET:")
 	}

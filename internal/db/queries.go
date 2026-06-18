@@ -67,4 +67,10 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		left join evaluations e on e.transcript_id=t.id
 		where s.user_id=?
 		`
+
+	rows, err := database.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 }

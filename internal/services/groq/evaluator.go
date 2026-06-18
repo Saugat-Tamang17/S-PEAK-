@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
+	model "github.com/Saugat-Tamang17/S-PEAK/internal/models"
 )
 
 type EvaluateResponse struct {
@@ -18,7 +19,7 @@ type EvaluateResponse struct {
 	} `json:"choices"`
 }
 
-func Evaluate(cfg *config.Config, transcript string, topic string) (string, error) {
+func Evaluate(cfg *config.Config, transcript string, topic string) *model.EvaluationResult {
 	chatURL := cfg.CHATURL
 	if chatURL == "" {
 		return "", fmt.Errorf("groq CHATURL configuration is missing or empty")

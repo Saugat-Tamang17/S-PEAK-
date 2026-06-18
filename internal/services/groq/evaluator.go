@@ -56,7 +56,7 @@ Do not include any text before or after the JSON object.`
 
 	req, err := http.NewRequest("POST", ChatURL, bytes.NewBuffer(body))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("create request: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+cfg.GROQAPIKEY)

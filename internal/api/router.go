@@ -27,6 +27,7 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/transcription", handlers.TranscribeHandler(cfg, database))
 		r.Post("/tutor", handlers.TutorHandler(cfg, database))
+		r.Get("/history", handlers.HistoryHandler(database)) // ← new
 	})
 
 	return r

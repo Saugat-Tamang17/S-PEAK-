@@ -85,6 +85,7 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		if err != nil {
 			return nil, err
 		}
-
+		result = append(result, r)
 	}
+	return result, rows.Err()
 }

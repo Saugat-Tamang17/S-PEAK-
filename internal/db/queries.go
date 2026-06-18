@@ -65,5 +65,6 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		from session s
 		join transcript t on t.session.id=s.id
 		left join evaluations e on e.transcript_id=t.id
+		where s.user_id=?
 		`
 }

@@ -73,4 +73,18 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
+	var result []SessionRow
+	for rows.Next() {
+		var r SessionRow
+		err := rows.Scan(
+			&r.SessionId, &r.Mode, &r.CreatedAt,
+			&r.RawText, &r.EnhancedText,
+			&r.GrammarScore, &r.FluencyScore, &r.ContentScore, &r.OverallScore, &r.Feedback,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+	}
 }

@@ -60,5 +60,6 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 	query := `
 		SELECT 
 		s.id,s.mode,s.created_at,
+		t.raw_text,t.enhanced_text,
 		`
 }

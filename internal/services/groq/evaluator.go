@@ -80,14 +80,18 @@ Do not include any text before or after the JSON object.`
 		return nil, fmt.Errorf("groq API returned status %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	var result EvaluateResponse
-	if err := json.Unmarshal(respBody, &result); err != nil {
+	var groqresq EvaluateResponse
+	if err := json.Unmarshal(respBody, &groqresq); err != nil {
 		return nil, fmt.Errorf("failed to parse groq response JSON: %w", err)
 	}
 
-	if len(result.Choices) == 0 || result.Choices[0].Message.Content == "" {
+	if len(groqresq.Choices) == 0 || groqresq.Choices[0].Message.Content == "" {
 		return nil, fmt.Errorf("groq returned no choices — raw response: %s", string(respBody))
 	}
-
+	rawJSON := groqresq.Choices[0].Message.Content
+	var result model.EvaluationResult
+	if err := json.Unmarshal([]byte(rawJSON), &result); err != nil {
+		return nil, fmt.Errorf("parse evaluation JSON: %w — raw content: %s", err, rawJSON)
+	}
 	return &result, nil
 }

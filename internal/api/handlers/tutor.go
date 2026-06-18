@@ -22,6 +22,13 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		result, err := groq.Evaluate(cfg, input.Transcript, input.Topic)
+		if err != nil {
+			log.Printf("Evaluate error: %v", err)
+			http.Error(w, "evaluation failed", http.StatusInternalServerError)
+			return
+		}
+
 		feedbackRaw, err := groq.Evaluate(cfg, input.Transcript, input.Topic)
 		if err != nil {
 			log.Printf("Evaluation error: %v", err)

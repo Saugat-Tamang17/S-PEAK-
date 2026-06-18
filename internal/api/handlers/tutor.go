@@ -22,6 +22,7 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// 1. Only call the Groq AI service ONCE
 		result, err := groq.Evaluate(cfg, input.Transcript, input.Topic)
 		if err != nil {
 			log.Printf("Evaluate error: %v", err)
@@ -29,32 +30,29 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		feedbackRaw, err := groq.Evaluate(cfg, input.Transcript, input.Topic)
+		// 2. Run your database inserts safely using the 'result' object
+		sessionID, err := db.CreateSession(database, 1, "tutor") // Hardcoded user_id 1 for now
 		if err != nil {
-			log.Printf("Evaluation error: %v", err)
-			http.Error(w, "evaluation failed", http.StatusInternalServerError)
-			return
+			log.Printf("CreateSession error: %v", err)
 		}
 
-		// Save to DB — same hardcoded userID=1 placeholder
-		sessionID, err := db.CreateSession(database, 1, "tutor")
+		transcriptID, err := db.SaveTranscript(database, sessionID, input.Transcript, result.Corrected_answer)
 		if err != nil {
-			log.Printf("DB session error: %v", err)
-		} else {
-			transcriptID, err := db.SaveTranscript(database, sessionID, input.Transcript, input.Transcript)
-			if err != nil {
-				log.Printf("DB transcript error: %v", err)
-			} else {
-				// feedbackRaw is the raw LLM string for now
-				// parsed scores come in a future day when you make the LLM return JSON
-				_ = db.SaveEvaluation(database, transcriptID, input.Topic,
-					0, 0, 0, 0, feedbackRaw, "")
-			}
+			log.Printf("SaveTranscript error: %v", err)
 		}
 
+		if err := db.SaveEvaluation(database, transcriptID, input.Topic,
+			result.ContentScore, result.FluencyScore, result.GrammarScore, result.OverallScore,
+			result.Feedback, result.Corrected_answer,
+		); err != nil {
+			log.Printf("SaveEvaluation error: %v", err)
+		}
+
+		// 3. Return the evaluation results directly back to the client
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"feedback": feedbackRaw,
-		})
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			log.Printf("Failed to encode response: %v", err)
+		}
 	}
 }

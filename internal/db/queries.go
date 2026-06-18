@@ -39,3 +39,15 @@ func SaveEvaluation(db *sql.DB, transcriptID int64, topic string,
 	)
 	return err
 }
+
+// this is for the session history //
+type SessionRow struct {
+	SessionId    int64     `json:"session_id"`
+	Mode         string    `json:"mode"`
+	CreatedAt    time.Time `json:"created_at"`
+	RawText      string    `json:"raw_text"`
+	EnhancedText string    `json:"enhanced_text"`
+
+	//pointer to the enhanced mode , null if its in raw transcription mode //
+
+}

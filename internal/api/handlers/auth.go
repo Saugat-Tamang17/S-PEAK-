@@ -51,3 +51,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "user created"})
 
 }
+
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var req authRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	}
+
+	user,err:=db.GetUserByEmail(r.Context(),h.DB,req.Email){
+		if err !=nil{
+			http.Error(w,"internal error",http.StatusInternalServerError)
+			return 
+		}
+	}
+}

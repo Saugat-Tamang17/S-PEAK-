@@ -14,6 +14,17 @@ type User struct {
 
 func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
 	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password) VALUES(? , ?)", email, hashedPassword)
+	return nil
+}
+
+func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
+	row := db.QueryRowContext(ctx, "SELECT id, email, password FROM users WHERE email = ?", email)
+	u := &User{}
+	err := row.Scan(&u.ID, &u.Email, &u.Password)
+	if err == sql.ErrNoRows {
+		return nil, nil // not found, not an error
+	}
+	return u, nil
 }
 
 func CreateSession(db *sql.DB, userID int, mode string) (int64, error) {

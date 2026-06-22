@@ -26,4 +26,9 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "email and password required", http.StatusBadRequest)
 		return
 	}
+
+	if len(req.Password) < 8 {
+		http.Error(w, "Password must be at least of 8 characters.", http.StatusBadRequest)
+		return
+	}
 }

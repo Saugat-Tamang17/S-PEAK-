@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+type User struct {
+	ID       int
+	Email    string
+	Password string
+}
+
 func CreateSession(db *sql.DB, userID int, mode string) (int64, error) {
 	result, err := db.Exec(
 		`INSERT INTO sessions(user_id,mode,created_at) VALUES (?,?,?)`, userID, mode, time.Now(),

@@ -72,5 +72,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "internal error", http.StatusInternalServerError)
         return
     }
+		 w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"token": token})
 	}
 }

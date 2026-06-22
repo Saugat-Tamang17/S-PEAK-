@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 	"github.com/golang-jwt/jwt"
@@ -85,7 +86,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 		claims:=jwt.MapClaims{
 			"user_id":userID,
-			"exp" :time.Now().Add(24*time.Hour).Unix(),
+			"exp" :time.Now().Add(7*time.Minute()).Unix(),
 		}
 		token:=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		return token.SignedString([]byte(secret))

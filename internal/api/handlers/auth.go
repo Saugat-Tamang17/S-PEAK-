@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -40,4 +41,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := db.CreateUser(r.Context(), h.DB, req.Email, string(hash)); err != nil {
+		http.Error(w, "email already registered", http.StatusConflict)
+		return
+	}
 }

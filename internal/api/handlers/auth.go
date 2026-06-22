@@ -63,5 +63,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w,"internal error",http.StatusInternalServerError)
 			return 
 		}
+		  if user == nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
+        http.Error(w, "invalid credentials", http.StatusUnauthorized)
+        return
+    }
 	}
 }

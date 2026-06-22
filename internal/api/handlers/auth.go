@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
@@ -31,4 +33,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Password must be at least of 8 characters.", http.StatusBadRequest)
 		return
 	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+	if err != nil {
+		http.Error(w, "internal error :(", http.StatusInternalServerError)
+		return
+	}
+
 }

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
@@ -9,6 +10,10 @@ type User struct {
 	ID       int
 	Email    string
 	Password string
+}
+
+func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
+	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password) VALUES(? , ?)", email, hashedPassword)
 }
 
 func CreateSession(db *sql.DB, userID int, mode string) (int64, error) {

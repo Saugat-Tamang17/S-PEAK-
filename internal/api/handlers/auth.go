@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -74,5 +75,19 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
     }
 		 w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(map[string]string{"token": token})
+	}
+	
+
+	func generateJWT(userID int)(string ,error){
+		secret:=os.Getenv("JWT_SECRET")
+		if secret == "" {
+	return "", errors.New("JWT_SECRET not set")
+}
+		claims:=jwt.MapClaims{
+			"user_id":userID,
+			"exp" :time.Now().Add(24*time.Hour).Unix(),
+		}
+		token:=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		return token.SignedString([]byte(secret))
 	}
 }

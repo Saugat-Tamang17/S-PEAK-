@@ -14,6 +14,9 @@ type User struct {
 
 func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
 	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password) VALUES(? , ?)", email, hashedPassword)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -39,9 +39,16 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 	
 	authHandler:=&handler.AuthHandler{DB:database}
-	
 
 
+r.Group(func(r chi.Router){
+	r.Use(handlers.JWTAuth) 
+
+		
+		r.Post("/api/v1/tutor", handlers.TutorHandler(cfg, database))
+		r.Post("/api/v1/transcription", handlers.TranscribeHandler(cfg, database))
+		r.Get("/api/v1/history", handlers.HistoryHandler(database))
+})
 
 return r
 }

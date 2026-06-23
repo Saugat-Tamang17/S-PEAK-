@@ -1,11 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // custom type to avoid context key collision
@@ -26,21 +27,30 @@ func JWTAuth(next http.Handler) http.Handler {
 		secret := os.Getenv("JWT_SECRET")
 
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-            
-            if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-                return nil, jwt.ErrSignatureInvalid
-            }
-            return []byte(secret), nil
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return []byte(secret), nil
+		})
 
+		if err != nil || !token.Valid {
+			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			http.Error(w, "invalid token claims", http.StatusUnauthorized)
+			return
+		}
+
+		userIDFloat, ok := claims["user_id"].(float64)
+		if !ok {
+			http.Error(w, "invalid token payload", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), UserIDKey, int(userIDFloat))
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-	if err !=nil || !token.Valid{
-		http.Error(w,"Invalid or expired token",http.StatusUnauthorized)
-		return
-	}
-
-	claims,ok:=token.Claims(jwt.MapClaims)
-	if !ok{
-http.Error(w, "invalid token claims", http.StatusUnauthorized)
-return
-	}
 }

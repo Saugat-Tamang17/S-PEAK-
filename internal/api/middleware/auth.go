@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/golang-jwt/jwt"
 )
 
 // custom type to avoid context key collision
@@ -31,4 +33,14 @@ func JWTAuth(next http.Handler) http.Handler {
             return []byte(secret), nil
 
 	})
+	if err !=nil || !token.Valid{
+		http.Error(w,"Invalid or expired token",http.StatusUnauthorized)
+		return
+	}
+
+	claims,ok:=token.Claims(jwt.MapClaims)
+	if !ok{
+http.Error(w, "invalid token claims", http.StatusUnauthorized)
+return
+	}
 }

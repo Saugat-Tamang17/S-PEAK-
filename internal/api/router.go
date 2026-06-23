@@ -27,11 +27,12 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	}))
 
 	r.Get("/health", handlers.HealthHandler)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.JWTAuth)
 
-	r.Route("/api/v1", func(r chi.Router) {
-		r.Post("/transcription", handlers.TranscribeHandler(cfg, database))
-		r.Post("/tutor", handlers.TutorHandler(cfg, database))
-		r.Get("/history", handlers.HistoryHandler(database)) // ← new
+		r.Post("/api/v1/tutor", handlers.TutorHandler(cfg, db))
+		r.Post("/api/v1/transcription", handlers.TranscribeHandler(cfg, db))
+		r.Get("/api/v1/history", handlers.HistoryHandler(db))
 	})
 
 	return r

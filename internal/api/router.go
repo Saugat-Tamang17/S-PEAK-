@@ -37,7 +37,9 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	}))
 	 
 	r.Get("/health", handlers.HealthHandler)
-
+	
+	authHandler:=&handler.AuthHandler{DB:database}
+	
 
 
 

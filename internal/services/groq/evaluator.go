@@ -19,7 +19,7 @@ type EvaluateResponse struct {
 	} `json:"choices"`
 }
 
-func Evaluate(cfg *config.Config, transcript string, topic string) (*model.EvaluationResult, err Error) {
+func Evaluate(cfg *config.Config, transcript string, topic string) (*model.EvaluationResult, error) {
 	ChatURL := cfg.CHATURL
 	systemPrompt := `You are an English speech tutor. Evaluate the transcript and respond ONLY with a JSON object — no markdown, no preamble, no explanation outside the JSON.
 

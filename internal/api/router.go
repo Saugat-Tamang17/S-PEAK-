@@ -16,6 +16,10 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	authHandler := &handlers.AuthHandler{DB: db}
+	r.Post("/api/v1/auth/register", authHandler.Register)
+	r.Post("/api/v1/auth/login", authHandler.Login)
+
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"*"}, // meaning any websites can make http req to my api as of now ,//
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},

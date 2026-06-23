@@ -7,12 +7,18 @@ import (
 	"net/http"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
+	"github.com/Saugat-Tamang17/S-PEAK/internal/api/middleware"
 	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 	groq "github.com/Saugat-Tamang17/S-PEAK/internal/services/groq"
 )
 
 func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := r.Context().Value(middleware.UserIDKey).(int)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
 		var input struct {
 			Transcript string `json:"transcript"`
 			Topic      string `json:"topic"`
@@ -31,7 +37,7 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		}
 
 		// 2. Run your database inserts safely using the 'result' object
-		sessionID, err := db.CreateSession(database, 1, "tutor") // Hardcoded user_id 1 for now
+		sessionID, err := db.CreateSession(database, userID, "tutor") // Hardcoded user_id 1 for now
 		if err != nil {
 			log.Printf("CreateSession error: %v", err)
 		}

@@ -36,7 +36,7 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 		AllowedHeaders: []string{"Content-Type"},
 	}))
 	 
-	
+	r.Get("/health", handlers.HealthHandler)
 
 
 

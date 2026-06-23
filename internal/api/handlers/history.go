@@ -5,13 +5,18 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Saugat-Tamang17/S-PEAK/internal/api/middleware"
 	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 )
 
 func HistoryHandler(database *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//hardcoded user =1 ,until auth is wired later on
-		rows, err := db.GetSessionHistory(database, 1)
+		userID, ok := r.Context().Value(middleware.UserIDKey).(int)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		rows, err := db.GetSessionHistory(database, userID)
 		if err != nil {
 			http.Error(w, "failed to fetch history", http.StatusInternalServerError)
 			return

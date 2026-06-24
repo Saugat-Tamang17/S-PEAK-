@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	ID       int
-	Email    string
-	Password string
+	ID           int
+	Email        string
+	PasswordHash string
 }
 
 func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
-	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password) VALUES(? , ?)", email, hashedPassword)
+	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password_hash) VALUES(? , ?)", email, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) e
 func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
 	row := db.QueryRowContext(ctx, "SELECT id, email, password FROM users WHERE email = ?", email)
 	u := &User{}
-	err := row.Scan(&u.ID, &u.Email, &u.Password)
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash)
 	if err == sql.ErrNoRows {
 		return nil, nil // not found, not an error
 	}

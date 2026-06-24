@@ -88,8 +88,8 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		t.raw_text,t.enhanced_text,
 		e.grammar_score,e.fluency_score,e.content_score,e.overall_score,e.feedback
 		from sessions s
-		join transcripts t on t.session.id=s.id
-		left join evaluations e on e.transcript_id=t.id
+join transcripts t on t.session_id=s.id
+left join evaluations e on e.transcript_id=t.id
 		where s.user_id=?
 		  ORDER BY s.created_at DESC
         LIMIT 20

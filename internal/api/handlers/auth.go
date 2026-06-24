@@ -26,9 +26,11 @@ type authRequest struct {
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req authRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Decode error: %v | body: %v", err, r.Body)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
+	log.Printf("Register attempt: email=%s", req.Email)
 
 	if req.Email == "" || req.Password == "" {
 		http.Error(w, "email and password required", http.StatusBadRequest)
@@ -70,7 +72,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
+	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)) != nil {
 		http.Error(w, "invalid credentials", http.StatusUnauthorized)
 		return
 	}

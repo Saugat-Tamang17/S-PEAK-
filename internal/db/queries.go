@@ -13,15 +13,14 @@ type User struct {
 }
 
 func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
-	_, err := db.ExecContext(ctx, "INSERT INTO USERS (email ,password_hash) VALUES(? , ?)", email, hashedPassword)
+	_, err := db.ExecContext(ctx, "INSERT INTO users (email, password_hash) VALUES(?, ?)", email, hashedPassword)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
 func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, email, password FROM users WHERE email = ?", email)
+	row := db.QueryRowContext(ctx, "SELECT id, email, password_hash FROM users WHERE email = ?", email)
 	u := &User{}
 	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash)
 	if err == sql.ErrNoRows {
@@ -87,7 +86,7 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		s.id,s.mode,s.created_at,
 		t.raw_text,t.enhanced_text,
 		e.grammar_score,e.fluency_score,e.content_score,e.overall_score,e.feedback
-		from session s
+		from sessions s
 		join transcript t on t.session.id=s.id
 		left join evaluations e on e.transcript_id=t.id
 		where s.user_id=?

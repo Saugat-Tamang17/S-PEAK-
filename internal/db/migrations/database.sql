@@ -1,60 +1,65 @@
 -- Active: 1780405368569@@127.0.0.1@3306@s_peak
+-- S-PEAK Database Schema
+-- Run this file to reset and recreate the entire database cleanly
 
-drop table if exists transcripts;
-drop table if exists sessions;
-drop table if exists users;
-create table if not exists users(
-  id int AUTO_INCREMENT PRIMARY KEY, 
-  email varchar(255) not null unique,
-  password_hash varchar(255) not null,
-  created_at TIMESTAMP default CURRENT_TIMESTAMP
+USE s_peak;
+
+-- Drop in reverse FK order
+DROP TABLE IF EXISTS evaluations;
+DROP TABLE IF EXISTS transcripts;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS users;
+
+-- Users
+CREATE TABLE users (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    email        VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table if not exists sessions(
-  id int AUTO_INCREMENT PRIMARY KEY,
-  user_id int not null,
-  mode varchar (20) not null,
-  created_at timestamp default CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+-- Sessions
+CREATE TABLE sessions (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    mode       VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-
-create table if not exists transcripts(
-  id int AUTO_INCREMENT PRIMARY KEY,
-  session_id int not null,
-  raw_text text not null,
-  enhanced_text text not null,
-  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
-  Foreign Key (session_id) REFERENCES sessions(id)
+-- Transcripts
+CREATE TABLE transcripts (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    session_id    INT NOT NULL,
+    raw_text      TEXT NOT NULL,
+    enhanced_text TEXT NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES sessions(id)
 );
 
+-- Evaluations
+CREATE TABLE evaluations (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    transcript_id    INT NOT NULL,
+    topic            VARCHAR(500) NOT NULL,
+    content_score    INT NOT NULL,
+    fluency_score    INT NOT NULL,
+    grammar_score    INT NOT NULL,
+    overall_score    INT NOT NULL,
+    corrected_answer TEXT NOT NULL,
+    feedback         TEXT NOT NULL,
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (transcript_id) REFERENCES transcripts(id)
+);
+
+-- Verify
+SHOW TABLES;
 DESCRIBE users;
-describe sessions;
-describe transcripts;
-
-
-create table if not exists evaluations(
-  id int AUTO_INCREMENT PRIMARY KEY,
-  transcript_id int not null,
-  topic varchar(500) not null,
-  content_score int not null,
-  fluency_score int not null,
-  grammar_score int not null,
-  overall_score int not null,
-  corrected_answer text not null,
-  feedback text not null,
-  created_at timestamp default CURRENT_TIMESTAMP,
-  FOREIGN KEY (transcript_id) REFERENCES transcripts(id)
-);
-
+DESCRIBE sessions;
+DESCRIBE transcripts;
 DESCRIBE evaluations;
 
-show TABLES;
+USE s_peak;
+SELECT id, email, password_hash FROM users;
 
-SELECT DATABASE();
-
-show tables;
-
-select *from users;
-INSERT IGNORE INTO users (id, email, password_hash) VALUES (1, 'test@speal.dev', 'placeholder');
-select *from users;
+SHOW DATABASES;

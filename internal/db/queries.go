@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -87,7 +88,7 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		t.raw_text,t.enhanced_text,
 		e.grammar_score,e.fluency_score,e.content_score,e.overall_score,e.feedback
 		from sessions s
-		join transcript t on t.session.id=s.id
+		join transcripts t on t.session.id=s.id
 		left join evaluations e on e.transcript_id=t.id
 		where s.user_id=?
 		  ORDER BY s.created_at DESC
@@ -96,6 +97,7 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 
 	rows, err := database.Query(query, userID)
 	if err != nil {
+		log.Printf("GetSessionHistory error: %v", err)
 		return nil, err
 	}
 	defer rows.Close()

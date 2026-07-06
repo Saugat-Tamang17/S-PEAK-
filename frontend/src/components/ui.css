@@ -51,3 +51,9 @@
 .btn-primary:hover { background: var(--current-hover); }
 .btn-primary:active { transform: scale(0.99); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--current);
+  padding: 8px 4px;
+}

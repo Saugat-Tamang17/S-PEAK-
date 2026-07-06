@@ -57,3 +57,5 @@
   color: var(--current);
   padding: 8px 4px;
 }
+
+.btn-ghost:hover { text-decoration: underline; }

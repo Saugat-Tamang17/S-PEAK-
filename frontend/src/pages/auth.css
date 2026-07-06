@@ -20,3 +20,7 @@
   text-transform: uppercase;
   color: var(--current);
 }
+
+.auth-title { font-size: 30px; margin-top: var(--space-1); }
+.auth-subtitle { color: var(--slate); margin-top: 8px; font-size: 15px; }
+.auth-body { margin-top: var(--space-3); }

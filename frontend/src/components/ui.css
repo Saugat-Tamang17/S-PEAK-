@@ -41,3 +41,9 @@
   cursor: pointer;
   transition: background 0.15s ease, transform 0.05s ease;
 }
+
+.btn-primary {
+  background: var(--current);
+  color: white;
+  width: 100%;
+}

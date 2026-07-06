@@ -47,3 +47,7 @@
   color: white;
   width: 100%;
 }
+
+.btn-primary:hover { background: var(--current-hover); }
+.btn-primary:active { transform: scale(0.99); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }

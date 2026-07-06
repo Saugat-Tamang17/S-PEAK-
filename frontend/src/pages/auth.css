@@ -34,3 +34,10 @@
   font-size: 13px;
   margin-bottom: var(--space-2);
 }
+
+.auth-switch {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--slate);
+  text-align: center;
+}

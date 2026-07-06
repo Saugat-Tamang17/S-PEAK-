@@ -4,3 +4,9 @@
   gap: 6px;
   margin-bottom: var(--space-2);
 }
+
+.field-label {
+  font-size: 13px;
+  color: var(--slate);
+  font-weight: 500;
+}

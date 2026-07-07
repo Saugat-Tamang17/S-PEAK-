@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "../../layouts/AuthLayout";
-import FormField from "../../components/auth/FormField";
-import SocialAuthDivider from "../../components/auth/SocialAuthDivider";
+import AuthLayout from "../../layout/AuthLayout";
+import FormField from "../../components/auth/formfield";
+import SocialAuthDivider from "../../components/auth/socialauthdivider";
 
 export default function SignUp() {
   const navigate = useNavigate();

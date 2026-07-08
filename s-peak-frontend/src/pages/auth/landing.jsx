@@ -55,3 +55,14 @@ function ProgressRing({ percent = 85, size = 96, stroke = 8 }) {
     </svg>
   );
 }
+
+function BlobPanel() {
+  return (
+    <div className="relative h-full min-h-[220px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#EDF1EC] to-[#CFDBD1]">
+      <span className="absolute left-6 top-8 h-20 w-20 rounded-full bg-white/50 blur-[1px]" />
+      <span className="absolute right-10 top-16 h-12 w-12 rounded-full bg-white/60" />
+      <span className="absolute bottom-8 left-16 h-16 w-16 rounded-full bg-white/40" />
+      <span className="absolute inset-0 m-auto h-40 w-40 rounded-full border border-[#33493D]/15" />
+    </div>
+  );
+}

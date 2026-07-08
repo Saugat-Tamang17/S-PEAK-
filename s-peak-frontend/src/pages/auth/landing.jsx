@@ -66,3 +66,32 @@ function BlobPanel() {
     </div>
   );
 }
+
+function NavBar() {
+  return (
+    <header className="sticky top-0 z-10 border-b border-[#E4E7E3] bg-[#F6F7F5]/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" className="font-serif text-lg font-bold tracking-wide text-[#161F1B]">
+          S-PEAK
+        </a>
+ 
+        <nav className="hidden gap-8 text-sm text-[#33423A] md:flex">
+          <a href="#features" className="hover:text-[#33493D]">Features</a>
+          <a href="#how-it-works" className="hover:text-[#33493D]">How it works</a>
+        </nav>
+ 
+        <div className="flex items-center gap-4">
+          <Link to="/login" className="text-sm font-medium text-[#33423A] hover:text-[#33493D]">
+            Log in
+          </Link>
+          <Link
+            to="/signup"
+            className="rounded-full bg-[#33493D] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#28392F]"
+          >
+            Sign up
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}

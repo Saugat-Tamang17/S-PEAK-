@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Mic, BarChart2, History, MessageSquare, ArrowRight } from "lucide-react";
-import heroImg from "../assets/hero.png";
+import heroImg from "../../assets/hero.png";
 
 function Waveform() {
   const bars = [6, 14, 22, 12, 26, 18, 30, 16, 22, 10, 20, 14, 26, 8, 18, 12, 24, 16, 10, 20];

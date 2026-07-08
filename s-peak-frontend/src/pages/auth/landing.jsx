@@ -95,3 +95,21 @@ function NavBar() {
     </header>
   );
 }
+
+function Footer() {
+  return (
+    <footer className="border-t border-[#E4E7E3] px-6 py-8">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-xs text-[#6B7A70] md:flex-row">
+        <p>
+          <span className="font-serif font-semibold text-[#161F1B]">S-PEAK</span>
+          {"  ·  "}© {new Date().getFullYear()} S-PEAK. Find your quiet confidence.
+        </p>
+        <div className="flex gap-6">
+          <a href="#" className="underline-offset-2 hover:underline">Privacy Policy</a>
+          <a href="#" className="underline-offset-2 hover:underline">Terms of Service</a>
+          <a href="#" className="underline-offset-2 hover:underline">Support</a>
+        </div>
+      </div>
+    </footer>
+  );
+}

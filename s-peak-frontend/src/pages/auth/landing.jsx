@@ -113,3 +113,122 @@ function Footer() {
     </footer>
   );
 }
+
+
+export default function Landing() {
+  return (
+    <div className="min-h-screen bg-[#F6F7F5]">
+      <NavBar />
+ 
+      {/* Hero */}
+      <section className="bg-[radial-gradient(circle_at_50%_0%,rgba(143,171,152,0.18),transparent_60%)] px-6 pb-16 pt-20 text-center">
+        <h1 className="mx-auto max-w-2xl font-serif text-4xl font-bold leading-[1.15] text-[#161F1B] sm:text-5xl">
+          Find Your Quiet{" "}
+          <span className="text-[#33493D] underline decoration-[#8AAB98] decoration-2 underline-offset-4">
+            Confidence.
+          </span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-[#5B6961]">
+          Master English speaking with real-time AI feedback and personalized
+          tutoring in a space designed for focus, clarity, and growth.
+        </p>
+ 
+        <Link
+          to="/signup"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#33493D]
+            px-6 py-3 text-[15px] font-semibold text-white shadow-sm transition hover:bg-[#28392F]"
+        >
+          <Mic size={18} />
+          Start Speaking
+        </Link>
+ 
+        <div className="relative mx-auto mt-16 max-w-3xl overflow-hidden rounded-3xl shadow-xl">
+          <img src={heroImg} alt="" className="h-[340px] w-full object-cover sm:h-[400px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#161F1B]/25 via-transparent to-transparent" />
+          <div className="absolute left-8 top-8 max-w-xs text-left">
+            <p className="text-xs font-semibold tracking-[0.14em] text-[#33493D]">S-PEAK</p>
+            <p className="mt-2 font-serif text-2xl font-bold leading-tight text-[#161F1B]">
+              Find your stillness.
+            </p>
+            <p className="mt-2 text-sm text-[#33423A]">
+              Discover cognitive calm and focused clarity with mindful soundscapes.
+            </p>
+          </div>
+        </div>
+      </section>
+ 
+      {/* Features */}
+      <section id="features" className="px-6 py-20">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7A70]">
+            Cognitive stillness
+          </p>
+          <h2 className="mt-2 font-serif text-3xl font-bold text-[#161F1B]">
+            Designed for deep practice.
+          </h2>
+        </div>
+ 
+        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl bg-white p-7 shadow-[0_8px_30px_rgba(20,30,25,0.06)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E4EEE8]">
+              <BarChart2 size={18} className="text-[#33493D]" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-[#161F1B]">
+              Real-time AI Evaluations
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-[#5B6961]">
+              Immediate, gentle, and precise feedback on pronunciation, pacing,
+              and clarity without breaking your flow.
+            </p>
+            <div className="mt-5">
+              <Waveform />
+            </div>
+          </div>
+ 
+          <div className="rounded-2xl bg-white p-7 shadow-[0_8px_30px_rgba(20,30,25,0.06)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E4E9F0]">
+              <History size={18} className="text-[#33493D]" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-[#161F1B]">
+              History Tracking
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-[#5B6961]">
+              Visualize your progress over time with calm, encouraging metrics
+              that celebrate consistency.
+            </p>
+            <div className="mt-6 flex items-center justify-center">
+              <ProgressRing percent={85} />
+            </div>
+          </div>
+ 
+          <div className="rounded-2xl bg-white p-7 shadow-[0_8px_30px_rgba(20,30,25,0.06)] lg:col-span-2">
+            <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E4EEE8]">
+                  <MessageSquare size={18} className="text-[#33493D]" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-[#161F1B]">
+                  Personalized Topics
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#5B6961]">
+                  Engage in conversations that matter to you. The AI adapts to
+                  your professional field, interests, and current skill level,
+                  creating a truly bespoke learning environment.
+                </p>
+                <a
+                  href="#"
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#33493D] hover:underline"
+                >
+                  Explore Topics <ArrowRight size={15} />
+                </a>
+              </div>
+              <BlobPanel />
+            </div>
+          </div>
+        </div>
+      </section>
+ 
+      <Footer />
+    </div>
+  );
+}

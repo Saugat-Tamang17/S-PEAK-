@@ -16,3 +16,42 @@ function Waveform() {
     </div>
   );
 }
+function ProgressRing({ percent = 85, size = 96, stroke = 8 }) {
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - percent / 100);
+ 
+  return (
+    <svg width={size} height={size} className="mx-auto -rotate-90">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="#E4E7E3"
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="#33493D"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+      />
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        transform={`rotate(90 ${size / 2} ${size / 2})`}
+        className="fill-[#161F1B] text-[15px] font-semibold"
+      >
+        {percent}%
+      </text>
+    </svg>
+  );
+}

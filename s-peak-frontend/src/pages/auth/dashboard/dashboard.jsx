@@ -68,4 +68,12 @@ export default function SpeakDashboard() {
   const [speechSupported, setSpeechSupported] = useState(true);
 }
 
-
+const recognitionRef = useRef(null);
+const timerRef = useRef(null);
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+      return;
+    }
+    

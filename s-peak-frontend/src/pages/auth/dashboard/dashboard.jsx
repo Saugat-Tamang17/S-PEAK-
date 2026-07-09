@@ -120,3 +120,13 @@ const timerRef = useRef(null);
       setIsListening(true);
     }
   };
+
+   const startSession = () => {
+    if (isRecording) return;
+    setIsRecording(true);
+    setElapsed(0);
+    timerRef.current = setInterval(() => {
+      setElapsed((prev) => prev + 1);
+    }, 1000);
+  };
+ 

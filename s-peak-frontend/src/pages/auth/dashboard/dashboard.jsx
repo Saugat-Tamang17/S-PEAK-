@@ -76,4 +76,10 @@ const timerRef = useRef(null);
       setSpeechSupported(false);
       return;
     }
-    
+
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+ 

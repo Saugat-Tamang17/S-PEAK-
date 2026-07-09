@@ -138,4 +138,17 @@ const timerRef = useRef(null);
     const finalTopic = topic.trim() || "Free Talk";
     const Icon = CONTEXT_ICON[selected] || MessageCircle;
     const score = Math.floor(70 + Math.random() * 25); // demo score
-  }
+  
+
+     const newSession = {
+      icon: Icon,
+      topic: finalTopic,
+      date: formatToday(),
+      duration: formatDuration(elapsed || 1),
+      score,
+    };
+ 
+    setSessions((prev) => [newSession, ...prev]);
+    setTopic("");
+    setElapsed(0);
+  };

@@ -48,23 +48,24 @@ function RingStat({ label, value, iconColor }) {
   );
 }
  
-
-function ScorePill({ score }) {
-  const bg = score >= 85 ? "#d7ecd9" : "#dceef4";
-  const fg = score >= 85 ? "#2f6b3a" : "#2a5f73";
-  return (
-    <span
-      style={{
-        background: bg,
-        color: fg,
-        fontSize: 13,
-        fontWeight: 600,
-        padding: "4px 10px",
-        borderRadius: 999,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {score}%
-    </span>
-  );
+function formatToday() {
+  return new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
+ 
+function formatDuration(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+ 
+export default function SpeakDashboard() {
+  const [selected, setSelected] = useState("daily");
+  const [topic, setTopic] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [sessions, setSessions] = useState(INITIAL_SESSIONS);
+  const [speechSupported, setSpeechSupported] = useState(true);
+}
+
+

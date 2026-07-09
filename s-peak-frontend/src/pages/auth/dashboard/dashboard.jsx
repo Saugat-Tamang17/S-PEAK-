@@ -130,3 +130,12 @@ const timerRef = useRef(null);
     }, 1000);
   };
  
+
+  const endSession = () => {
+    clearInterval(timerRef.current);
+    setIsRecording(false);
+ 
+    const finalTopic = topic.trim() || "Free Talk";
+    const Icon = CONTEXT_ICON[selected] || MessageCircle;
+    const score = Math.floor(70 + Math.random() * 25); // demo score
+  }

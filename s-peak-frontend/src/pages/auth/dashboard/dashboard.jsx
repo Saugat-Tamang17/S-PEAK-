@@ -241,3 +241,15 @@ const timerRef = useRef(null);
         }
         .pulse { animation: pulse 1.5s infinite; }
       `}</style>
+
+       {/* Nav */}
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "18px 40px",
+          background: "#fff",
+          borderBottom: "1px solid #eceef1",
+        }}
+      ></header>

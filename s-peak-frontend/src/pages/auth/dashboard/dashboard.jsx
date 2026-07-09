@@ -83,3 +83,16 @@ const timerRef = useRef(null);
     recognition.interimResults = true;
     recognition.lang = "en-US";
  
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setTopic(transcript);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+ 
+    recognitionRef.current = recognition;
+  }, []);

@@ -152,3 +152,92 @@ const timerRef = useRef(null);
     setTopic("");
     setElapsed(0);
   };
+
+  <style>{`
+        * { box-sizing: border-box; }
+        .stat-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 20px 22px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border: 1px solid #edeef2;
+        }
+        .stat-label { font-size: 13px; color: #6b7280; margin: 0 0 6px 0; }
+        .stat-value { font-size: 28px; font-weight: 700; margin: 0; color: #111827; }
+        .stat-percent { font-size: 14px; font-weight: 500; color: #9ca3af; margin-left: 2px; }
+        .context-card {
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 20px 12px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.15s ease;
+          background: #fff;
+        }
+        .context-card:hover { border-color: #cbd5e1; }
+        .context-card.selected {
+          background: #eef1fb;
+          border-color: #94a3d8;
+        }
+        table.sessions { width: 100%; border-collapse: collapse; }
+        table.sessions th {
+          text-align: left;
+          font-size: 12px;
+          font-weight: 600;
+          color: #6b7280;
+          text-transform: none;
+          padding: 14px 24px;
+          border-bottom: 1px solid #eef0f3;
+        }
+        table.sessions td {
+          padding: 16px 24px;
+          border-bottom: 1px solid #f1f2f5;
+          font-size: 14.5px;
+        }
+        table.sessions tr:last-child td { border-bottom: none; }
+        .row-icon {
+          width: 34px; height: 34px; border-radius: 999px;
+          background: #eef1fb; display: flex; align-items: center; justify-content: center;
+          color: #3f4f8f; flex-shrink: 0;
+        }
+        .new-row {
+          animation: highlightRow 1.8s ease-out;
+        }
+        @keyframes highlightRow {
+          0% { background-color: #fff6da; }
+          100% { background-color: transparent; }
+        }
+        .topic-input {
+          width: 100%;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          padding: 12px 14px;
+          font-size: 14.5px;
+          outline: none;
+          font-family: inherit;
+        }
+        .topic-input:focus { border-color: #94a3d8; }
+        .mic-btn {
+          border: none;
+          border-radius: 10px;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+          70% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .pulse { animation: pulse 1.5s infinite; }
+      `}</style>

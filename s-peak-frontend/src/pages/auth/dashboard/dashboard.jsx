@@ -48,3 +48,23 @@ function RingStat({ label, value, iconColor }) {
   );
 }
  
+
+function ScorePill({ score }) {
+  const bg = score >= 85 ? "#d7ecd9" : "#dceef4";
+  const fg = score >= 85 ? "#2f6b3a" : "#2a5f73";
+  return (
+    <span
+      style={{
+        background: bg,
+        color: fg,
+        fontSize: 13,
+        fontWeight: 600,
+        padding: "4px 10px",
+        borderRadius: 999,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {score}%
+    </span>
+  );
+}

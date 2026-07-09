@@ -96,3 +96,27 @@ const timerRef = useRef(null);
  
     recognitionRef.current = recognition;
   }, []);
+
+    const toggleListening = () => {
+    if (!recognitionRef.current) return;
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setTopic("");
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+    const toggleListening = () => {
+    if (!recognitionRef.current) return;
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setTopic("");
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };

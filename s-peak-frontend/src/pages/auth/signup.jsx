@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import FormField from "../../components/auth/formfield";
 import SocialAuthDivider from "../../components/auth/socialauthdivider";
+import { login, register } from "../../lib/api";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -40,17 +41,8 @@ export default function SignUp() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Couldn't create your account.");
-      }
-
+      await register(form.email, form.password);
+      await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
       setFormError(err.message || "Something went wrong. Try again.");

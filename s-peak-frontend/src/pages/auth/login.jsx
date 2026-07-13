@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import FormField from "../../components/auth/formfield";
 import SocialAuthDivider from "../../components/auth/socialauthdivider";
+import { login } from "../../lib/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,17 +33,7 @@ export default function Login() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Incorrect email or password.");
-      }
-
+      await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
       setFormError(err.message || "Something went wrong. Try again.");

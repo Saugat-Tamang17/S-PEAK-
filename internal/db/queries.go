@@ -11,6 +11,7 @@ type User struct {
 	ID           int
 	Email        string
 	PasswordHash string
+	GoogleID     string
 }
 
 func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) error {
@@ -21,13 +22,33 @@ func CreateUser(ctx context.Context, db *sql.DB, email, hashedPassword string) e
 	return nil
 }
 func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, email, password_hash FROM users WHERE email = ?", email)
+	row := db.QueryRowContext(ctx, "SELECT id, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE email = ?", email)
 	u := &User{}
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash)
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.GoogleID)
 	if err == sql.ErrNoRows {
 		return nil, nil // not found, not an error
 	}
-	return u, nil
+	return u, err
+}
+
+func GetUserByGoogleID(ctx context.Context, db *sql.DB, googleID string) (*User, error) {
+	row := db.QueryRowContext(ctx, "SELECT id, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE google_id = ?", googleID)
+	u := &User{}
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.GoogleID)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return u, err
+}
+
+func CreateGoogleUser(ctx context.Context, db *sql.DB, email, googleID string) error {
+	_, err := db.ExecContext(ctx, "INSERT INTO users (email, google_id) VALUES (?, ?)", email, googleID)
+	return err
+}
+
+func LinkGoogleID(ctx context.Context, db *sql.DB, userID int, googleID string) error {
+	_, err := db.ExecContext(ctx, "UPDATE users SET google_id = ? WHERE id = ?", googleID, userID)
+	return err
 }
 
 func CreateSession(db *sql.DB, userID int, mode string) (int64, error) {

@@ -41,10 +41,10 @@ func main() {
 	defer database.Close()
 
 	router := api.NewRouter(cfg, database)
-	log.Printf(" Server Starting on the Port :%s", cfg.PORT)
+	log.Printf("Server starting on port: %s", cfg.PORT)
 
-	if err := http.ListenAndServe(": "+cfg.PORT, router); err != nil {
-		log.Fatalf("Server Failed:%v", err)
+	if err := http.ListenAndServe(":"+cfg.PORT, router); err != nil {
+		log.Fatalf("Server failed: %v", err)
 	}
 
 	log.Println("Day 2 complete. Nothing is running yet — that comes later.")

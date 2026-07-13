@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, Square, MessageCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, MessageCircle } from "lucide-react";
+import SessionInProgress from "./sessionInProgress";
+import { clearToken } from "../../../lib/api";
  
 
 const CONTEXTS = [
@@ -80,15 +83,15 @@ function ScorePill({ score }) {
 }
 
 export default function SpeakDashboard() {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState("daily");
   const [topic, setTopic] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
+  const [showSession, setShowSession] = useState(false);
   const [sessions, setSessions] = useState(INITIAL_SESSIONS);
+  const [highlightIndex, setHighlightIndex] = useState(null);
   const [speechSupported, setSpeechSupported] = useState(true);
   const recognitionRef = useRef(null);
-  const timerRef = useRef(null);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -117,7 +120,6 @@ export default function SpeakDashboard() {
 
     return () => {
       recognition.stop?.();
-      clearInterval(timerRef.current);
     };
   }, []);
 
@@ -134,19 +136,14 @@ export default function SpeakDashboard() {
   };
 
   const startSession = () => {
-    if (isRecording) return;
-    setIsRecording(true);
-    setElapsed(0);
-    timerRef.current = setInterval(() => {
-      setElapsed((prev) => prev + 1);
-    }, 1000);
+    if (showSession) return;
+    setShowSession(true);
   };
 
-  const endSession = () => {
-    clearInterval(timerRef.current);
-    setIsRecording(false);
+  const handleSessionEnd = (transcript, durationSeconds) => {
+    setShowSession(false);
 
-    const finalTopic = topic.trim() || "Free Talk";
+    const finalTopic = topic.trim() || transcript.trim() || "Free Talk";
     const Icon = CONTEXT_ICON[selected] || MessageCircle;
     const score = Math.floor(70 + Math.random() * 25);
 
@@ -154,13 +151,19 @@ export default function SpeakDashboard() {
       icon: Icon,
       topic: finalTopic,
       date: formatToday(),
-      duration: formatDuration(elapsed || 1),
+      duration: formatDuration(durationSeconds || 1),
       score,
     };
 
     setSessions((prev) => [newSession, ...prev]);
+    setHighlightIndex(0);
     setTopic("");
-    setElapsed(0);
+    window.setTimeout(() => setHighlightIndex(null), 1800);
+  };
+
+  const handleLogout = () => {
+    clearToken();
+    navigate("/login");
   };
 
   return (
@@ -274,6 +277,7 @@ export default function SpeakDashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <span style={{ color: "#374151", fontSize: 14.5, cursor: "pointer" }}>Profile</span>
           <button
+            onClick={handleLogout}
             style={{
               background: "#3d5c52",
               color: "#fff",
@@ -362,12 +366,12 @@ export default function SpeakDashboard() {
                   placeholder={isListening ? "Listening..." : "e.g. Negotiating rent with my landlord"}
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  disabled={isRecording}
+                  disabled={showSession}
                 />
                 <button
                   className={`mic-btn${isListening ? " pulse" : ""}`}
                   onClick={toggleListening}
-                  disabled={!speechSupported || isRecording}
+                  disabled={!speechSupported || showSession}
                   style={{
                     background: isListening ? "#dc2626" : "#eef1fb",
                     color: isListening ? "#fff" : "#3f4f8f",
@@ -384,54 +388,27 @@ export default function SpeakDashboard() {
               )}
             </div>
 
-            <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              {isRecording ? (
-                <span style={{ fontSize: 14, color: "#dc2626", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span className="pulse" style={{ width: 8, height: 8, borderRadius: "50%", background: "#dc2626", display: "inline-block" }} />
-                  {formatDuration(elapsed)}
-                </span>
-              ) : (
-                <span />
-              )}
-              {isRecording ? (
-                <button
-                  onClick={endSession}
-                  style={{
-                    background: "#dc2626",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 999,
-                    padding: "12px 26px",
-                    fontSize: 14.5,
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    cursor: "pointer",
-                  }}
-                >
-                  <Square size={13} fill="#fff" /> End Session
-                </button>
-              ) : (
-                <button
-                  onClick={startSession}
-                  style={{
-                    background: "#3d5c52",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 999,
-                    padding: "12px 26px",
-                    fontSize: 14.5,
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    cursor: "pointer",
-                  }}
-                >
-                  <Play size={14} fill="#fff" /> Start Session
-                </button>
-              )}
+            <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={startSession}
+                disabled={showSession}
+                style={{
+                  background: "#3d5c52",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "12px 26px",
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: showSession ? "not-allowed" : "pointer",
+                  opacity: showSession ? 0.6 : 1,
+                }}
+              >
+                <Play size={14} fill="#fff" /> Start Session
+              </button>
             </div>
           </div>
 
@@ -473,7 +450,7 @@ export default function SpeakDashboard() {
             </thead>
             <tbody>
               {sessions.map((s, i) => (
-                <tr key={`${s.topic}-${s.date}-${i}`} className={i === 0 && sessions !== INITIAL_SESSIONS ? "new-row" : ""}>
+                <tr key={`${s.topic}-${s.date}-${i}`} className={i === highlightIndex ? "new-row" : ""}>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div className="row-icon">
@@ -528,6 +505,13 @@ export default function SpeakDashboard() {
           <span style={{ cursor: "pointer" }}>Support</span>
         </div>
       </footer>
+
+      {showSession && (
+        <SessionInProgress
+          onClose={() => setShowSession(false)}
+          onEnd={handleSessionEnd}
+        />
+      )}
     </div>
   );
 }

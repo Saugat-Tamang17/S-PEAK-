@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import FormField from "../../components/auth/formfield";
-import SocialAuthDivider from "../../components/auth/socialauthdivider";
 import { login } from "../../lib/api";
 
 export default function Login() {
@@ -115,8 +114,6 @@ export default function Login() {
           {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
-
-      <SocialAuthDivider onGoogleClick={() => console.log("google oauth")} />
 
       <p className="mt-8 text-center text-[14px] text-[#5B6660]">
         New to S-PEAK?{" "}

@@ -20,6 +20,11 @@ type Config struct {
 	GROQAPIKEY string
 	PORT       string
 	CHATURL    string
+
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURL  string
+	FrontendURL        string
 }
 
 func Load() *Config {
@@ -28,16 +33,22 @@ func Load() *Config {
 	}
 
 	cfg := &Config{
-		DBHOST:     os.Getenv("DB_HOST"),
-		DBPORT:     os.Getenv("DB_PORT"),
-		DBUSER:     os.Getenv("DB_USER"),
-		DBPASSWORD: os.Getenv("DB_PASSWORD"),
-		DBNAME:     os.Getenv("DB_NAME"),
-		GROQAPIKEY: os.Getenv("GROQ_API_KEY"),
-		PORT:       os.Getenv("PORT"),
-		CHATURL:    os.Getenv("ChatURL"),
+		DBHOST:             os.Getenv("DB_HOST"),
+		DBPORT:             os.Getenv("DB_PORT"),
+		DBUSER:             os.Getenv("DB_USER"),
+		DBPASSWORD:         os.Getenv("DB_PASSWORD"),
+		DBNAME:             os.Getenv("DB_NAME"),
+		GROQAPIKEY:         os.Getenv("GROQ_API_KEY"),
+		PORT:               os.Getenv("PORT"),
+		CHATURL:            os.Getenv("ChatURL"),
+		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		GoogleRedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		FrontendURL:        os.Getenv("FRONTEND_URL"),
 	}
-	log.Printf("DEBUG key starts with: %s", cfg.GROQAPIKEY[:10])
+	if len(cfg.GROQAPIKEY) >= 10 {
+		log.Printf("DEBUG key starts with: %s", cfg.GROQAPIKEY[:10])
+	}
 	if cfg.GROQAPIKEY == "" {
 		log.Println("WARNING:AI API KEY HAS NOT BEEN SET:")
 	}

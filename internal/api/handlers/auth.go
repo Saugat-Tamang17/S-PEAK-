@@ -49,6 +49,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.CreateUser(r.Context(), h.DB, req.Email, string(hash)); err != nil {
+		log.Printf("Register DB error: %v", err)
 		http.Error(w, "email already registered", http.StatusConflict)
 		return
 	}
@@ -68,7 +69,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := db.GetUserByEmail(r.Context(), h.DB, req.Email)
 	if err != nil {
 		log.Printf("Login DB error: %v", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		http.Error(w, "login failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -80,7 +81,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	token, err := generateJWT(user.ID)
 	if err != nil {
 		log.Printf("JWT Generation error: %v", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		http.Error(w, "server token error", http.StatusInternalServerError)
 		return
 	}
 

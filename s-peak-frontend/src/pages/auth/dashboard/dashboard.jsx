@@ -295,7 +295,7 @@ export default function SpeakDashboard() {
       </header>
 
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 24px 60px" }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 6px 0" }}>Good morning, Alex.</h1>
+        <h1 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 6px 0" }}>Warm Greetings.</h1>
         <p style={{ color: "#6b7280", fontSize: 15.5, margin: "0 0 32px 0" }}>
           Ready to find your quiet confidence today?
         </p>

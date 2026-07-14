@@ -33,7 +33,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Register attempt: email=%s", req.Email)
 
-	if req.Email == "" || req.Password == "" {
+	if req.Name == "" || req.Email == "" || req.Password == "" {
 		http.Error(w, "email and password required", http.StatusBadRequest)
 		return
 	}
@@ -49,7 +49,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.CreateUser(r.Context(), h.DB, req.Email, string(hash)); err != nil {
+	if err := db.CreateUser(r.Context(), h.DB, req.Name, req.Email, string(hash)); err != nil {
 		log.Printf("Register DB error: %v", err)
 		http.Error(w, "email already registered", http.StatusConflict)
 		return

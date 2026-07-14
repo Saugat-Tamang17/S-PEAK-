@@ -64,3 +64,6 @@ USE s_peak;
 SELECT id, email, password_hash FROM users;
 
 SHOW DATABASES;
+ALTER TABLE users ADD COLUMN name VARCHAR(255);
+
+select * from users;

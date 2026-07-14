@@ -23,11 +23,11 @@ func CreateUser(ctx context.Context, db *sql.DB, name, email, hashedPassword str
 	return nil
 }
 func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE email = ?", email)
+	row := db.QueryRowContext(ctx, "SELECT id, name, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE email = ?", email)
 	u := &User{}
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.GoogleID)
+	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.GoogleID)
 	if err == sql.ErrNoRows {
-		return nil, nil // not found, not an error
+		return nil, nil
 	}
 	return u, err
 }

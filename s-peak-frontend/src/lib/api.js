@@ -59,7 +59,7 @@ export async function login(email, password) {
 
 }
 
-export async function register(email, password) {
+export async function register(name,email, password) {
   const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -67,15 +67,6 @@ export async function login(email, password) {
   return data;
 }
 
-  if (!res.ok) {
-    throw new Error(await parseError(res));
-  }
-
-  const data = await res.json();
-  if (data.token) setToken(data.token);
-  return data;
-}
-
 export async function register(email, password) {
   const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",

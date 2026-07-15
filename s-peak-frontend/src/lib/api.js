@@ -57,14 +57,6 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
 
-  if (!res.ok) {
-    throw new Error(await parseError(res));
-  }
-
-  const data = await res.json();
-  if (data.token) setToken(data.token);
-  if (data.name) localStorage.setItem("speak_user_name", data.name);
-  return data;
 }
 
 export async function register(email, password) {

@@ -54,9 +54,16 @@ export async function login(email, password) {
   const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({name, email, password }),
+    body: JSON.stringify({ email, password }),
   });
 
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+
+  const data = await res.json();
+  if (data.token) setToken(data.token);
+  return data;
 }
 
 export async function register(name,email, password) {

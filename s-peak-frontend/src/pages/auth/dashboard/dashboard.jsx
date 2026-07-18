@@ -81,45 +81,37 @@ function ScorePill({ score }) {
   );
 }
 
+// DELETE the entire INITIAL_SESSIONS array — no longer needed
+
 export default function SpeakDashboard() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState("daily");
   const [topic, setTopic] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [showSession, setShowSession] = useState(false);
-  const [sessions, setSessions] = useState(INITIAL_SESSIONS);
+  const [sessions, setSessions] = useState([]);          // was: useState(INITIAL_SESSIONS)
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [highlightIndex, setHighlightIndex] = useState(null);
   const [speechSupported, setSpeechSupported] = useState(true);
   const recognitionRef = useRef(null);
+  const userName = getUserName();
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setSpeechSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
-
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      setTopic(transcript);
-    };
-
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.stop?.();
-    };
+    authFetch("/api/v1/history")
+      .then((res) => res.json())
+      .then((rows) => {
+        const mapped = rows.map((r) => ({
+          icon: CONTEXT_ICON[r.mode] || MessageCircle,
+          topic: r.topic || "Free Talk",
+          date: new Date(r.created_at).toLocaleDateString("en-US", {
+            month: "short", day: "numeric", year: "numeric",
+          }),
+          score: r.overall_score ?? null,
+        }));
+        setSessions(mapped);
+      })
+      .catch((err) => console.error("Failed to load history:", err))
+      .finally(() => setLoadingHistory(false));
   }, []);
 
   const toggleListening = () => {

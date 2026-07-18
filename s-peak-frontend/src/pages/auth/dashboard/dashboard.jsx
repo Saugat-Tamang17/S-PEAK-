@@ -10,11 +10,7 @@ const CONTEXTS = [
   { id: "travel", label: "Travel", icon: Plane },
 ];
  
-const INITIAL_SESSIONS = [
-  { icon: Briefcase, topic: "Work Meeting Prep", date: "Oct 24, 2024", duration: "12:45", score: 85 },
-  { icon: Coffee, topic: "Ordering Coffee", date: "Oct 22, 2024", duration: "05:20", score: 92 },
-  { icon: Plane, topic: "Airport Customs", date: "Oct 18, 2024", duration: "08:15", score: 74 },
-];
+
 
 const CONTEXT_ICON = { daily: Coffee, work: Briefcase, travel: Plane };
  
@@ -81,7 +77,11 @@ function ScorePill({ score }) {
   );
 }
 
-// DELETE the entire INITIAL_SESSIONS array — no longer needed
+const gradedSessions = sessions.filter((s) => s.score !== null);
+const avgGrammar = gradedSessions.length
+  ? Math.round(gradedSessions.reduce((sum, s) => sum + s.score, 0) / gradedSessions.length)
+  : 0;
+
 
 export default function SpeakDashboard() {
   const navigate = useNavigate();
@@ -425,8 +425,8 @@ export default function SpeakDashboard() {
                 <Download size={18} color="#3f4f8f" />
               </div>
             </div>
-            <RingStat label="Avg. Grammar" value={88} iconColor="#3d5c52" />
-            <RingStat label="Avg. Fluency" value={76} iconColor="#1f3d34" />
+            <RingStat label="Avg. Grammar" value={avgGrammar} iconColor="#3d5c52" />
+<RingStat label="Avg. Fluency" value={avgGrammar} iconColor="#1f3d34" />
           </div>
         </div>
 

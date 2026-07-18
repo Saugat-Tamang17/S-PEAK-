@@ -131,7 +131,7 @@ left join evaluations e on e.transcript_id=t.id
 		var r SessionRow
 		err := rows.Scan(
 			&r.SessionId, &r.Mode, &r.CreatedAt,
-			&r.RawText, &r.EnhancedText,
+			&r.RawText, &r.EnhancedText, &r.Topic,
 			&r.GrammarScore, &r.FluencyScore, &r.ContentScore, &r.OverallScore, &r.Feedback,
 		)
 		if err != nil {

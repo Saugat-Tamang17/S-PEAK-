@@ -109,6 +109,7 @@ func GetSessionHistory(database *sql.DB, userID int) ([]SessionRow, error) {
 		SELECT 
 		s.id,s.mode,s.created_at,
 		t.raw_text,t.enhanced_text,
+		e.topic,
 		e.grammar_score,e.fluency_score,e.content_score,e.overall_score,e.feedback
 		from sessions s
 join transcripts t on t.session_id=s.id

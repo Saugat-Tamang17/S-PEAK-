@@ -94,6 +94,7 @@ type SessionRow struct {
 	CreatedAt    time.Time `json:"created_at"`
 	RawText      string    `json:"raw_text"`
 	EnhancedText string    `json:"enhanced_text"`
+	Topic        *string   `json:"topic"`
 
 	//pointer to the enhanced mode , null if its in raw transcription mode //
 	GrammarScore *int    `json:"grammer-score"`

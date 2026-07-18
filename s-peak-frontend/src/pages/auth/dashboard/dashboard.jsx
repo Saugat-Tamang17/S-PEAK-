@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, MessageCircle } from "lucide-react";
 import SessionInProgress from "./sessionInProgress";
-import { clearToken } from "../../../lib/api";
- 
+ import { clearToken, authFetch, getUserName } from "../../../lib/api";
 
 const CONTEXTS = [
   { id: "daily", label: "Daily Routine", icon: Coffee },

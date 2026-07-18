@@ -10,6 +10,7 @@ export function setToken(token) {
 
 export function clearToken() {
   localStorage.removeItem("speak_token");
+  localStorage.removeItem("speak_user_name");
 }
 
 export function isAuthenticated() {

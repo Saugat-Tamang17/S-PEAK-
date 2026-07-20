@@ -59,6 +59,23 @@ func RateLimit(limit int, window time.Duration, trustProxyHeaders bool) func(htt
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ip := getClientIP(r, trustProxyHeaders)
+
+			mu.Lock()
+			v, exists := visitors[ip]
+			now := time.Now()
+
+			if !exists || now.After(v.windowEnd) {
+				visitors[ip] = &visitor{count: 1, windowEnd: now.Add(window)}
+				mu.Unlock()
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			if v.count >= limit {
+				mu.Unlock()
+				http.Error(w, "too many requests, please try again later", http.StatusTooManyRequests)
+				return
+			}
 		})
 
 	}

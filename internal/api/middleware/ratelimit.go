@@ -56,5 +56,10 @@ func RateLimit(limit int, window time.Duration, trustProxyHeaders bool) func(htt
 			mu.Unlock()
 		}
 	}()
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ip := getClientIP(r, trustProxyHeaders)
+		})
 
+	}
 }

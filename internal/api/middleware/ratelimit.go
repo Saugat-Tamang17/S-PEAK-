@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -34,4 +35,26 @@ func getClientIP(r *http.Request, trustProxyHeaders bool) string {
 		return r.RemoteAddr
 	}
 	return ip
+}
+
+// func signature for the rate limiter and middleware wrapper //
+func RateLimit(limit int, window time.Duration, trustProxyHeaders bool) func(http.Handler) http.Handler {
+	var mu sync.Mutex
+	visitors := make(map[string]*visitor)
+
+	//goroutine for periodic cleanup so that map doesnt grow forever from one off visitor//
+	go func() {
+		for {
+			time.Sleep(window)
+			mu.Lock()
+			now := time.Now()
+			for ip, v := range visitors {
+				if now.After(v.windowEnd) {
+					delete(visitors, ip)
+				}
+			}
+			mu.Unlock()
+		}
+	}()
+
 }

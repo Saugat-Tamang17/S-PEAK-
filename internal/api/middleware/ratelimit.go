@@ -70,7 +70,6 @@ func RateLimit(limit int, window time.Duration, trustProxyHeaders bool) func(htt
 				next.ServeHTTP(w, r)
 				return
 			}
-
 			if v.count >= limit {
 				mu.Unlock()
 				http.Error(w, "too many requests, please try again later", http.StatusTooManyRequests)

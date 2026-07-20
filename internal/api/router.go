@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
 	"github.com/Saugat-Tamang17/S-PEAK/internal/api/handlers"
@@ -34,7 +35,9 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 
 	// 3. Protected Endpoints
 	r.Group(func(sub chi.Router) {
-
+		sub.Use(customMiddleware.RateLimit(5, time.Minute, cfg.TrustProxyHeaders))
+		sub.Post("/api/v1/auth/register", authHandler.Register)
+		sub.Post("/api/v1/auth/login", authHandler.Login)
 		sub.Use(customMiddleware.JWTAuth)
 
 		sub.Post("/api/v1/tutor", handlers.TutorHandler(cfg, database))

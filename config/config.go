@@ -25,6 +25,7 @@ type Config struct {
 	GoogleClientSecret string
 	GoogleRedirectURL  string
 	FrontendURL        string
+	TrustProxyHeaders  bool
 }
 
 func Load() *Config {

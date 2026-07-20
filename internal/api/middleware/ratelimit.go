@@ -19,7 +19,7 @@ type visitor struct {
 func getClientIP(r *http.Request, trustProxyHeaders bool) string {
 	if trustProxyHeaders {
 		//given that the req travels through multiple proxies like cloudfare,vercel etc we will store them all in array string and take 0 indexed string which is the ip//
-		if xff := r.Header.Get("X-Forwareded-For"); xff != "" {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 			return strings.TrimSpace(strings.Split(xff, ",")[0])
 		}
 		if xri := r.Header.Get("X-Real-IP"); xri != "" {

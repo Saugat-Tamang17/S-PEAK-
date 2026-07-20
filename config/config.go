@@ -46,6 +46,7 @@ func Load() *Config {
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GoogleRedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
 		FrontendURL:        os.Getenv("FRONTEND_URL"),
+		TrustProxyHeaders:  os.Getenv("TRUST_PROXY_HEADERS") == "true",
 	}
 	if len(cfg.GROQAPIKEY) >= 10 {
 		log.Printf("DEBUG key starts with: %s", cfg.GROQAPIKEY[:10])

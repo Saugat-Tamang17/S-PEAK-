@@ -75,7 +75,9 @@ func RateLimit(limit int, window time.Duration, trustProxyHeaders bool) func(htt
 				http.Error(w, "too many requests, please try again later", http.StatusTooManyRequests)
 				return
 			}
+			v.count++
+			mu.Unlock()
+			next.ServeHTTP(w, r)
 		})
-
 	}
 }

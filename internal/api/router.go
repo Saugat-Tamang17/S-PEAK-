@@ -40,9 +40,11 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 
 	// 3. Protected Endpoints
 	r.Group(func(sub chi.Router) {
-		sub.Use(customMiddleware.RateLimit(5, time.Minute, cfg.TrustProxyHeaders))
+		// CRITICAL: Middleware declared FIRST before any routes
+		sub.Use(customMiddleware.RateLimit(10, time.Minute, cfg.TrustProxyHeaders)) // (Optional: adjust limit for logged-in users)
 		sub.Use(customMiddleware.JWTAuth)
 
+		// Now these routes are fully secured by both layers of middleware
 		sub.Post("/api/v1/tutor", handlers.TutorHandler(cfg, database))
 		sub.Post("/api/v1/transcription", handlers.TranscribeHandler(cfg, database))
 		sub.Get("/api/v1/history", handlers.HistoryHandler(database))

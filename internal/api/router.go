@@ -30,14 +30,17 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	r.Get("/health", handlers.HealthHandler)
 
 	authHandler := &handlers.AuthHandler{DB: database}
-	r.Post("/api/v1/auth/register", authHandler.Register)
-	r.Post("/api/v1/auth/login", authHandler.Login)
+	r.Group(func(sub chi.Router) {
+		// Apply the rate limiter specifically to these authentication routes
+		sub.Use(customMiddleware.RateLimit(5, time.Minute, cfg.TrustProxyHeaders))
+
+		sub.Post("/api/v1/auth/register", authHandler.Register)
+		sub.Post("/api/v1/auth/login", authHandler.Login)
+	})
 
 	// 3. Protected Endpoints
 	r.Group(func(sub chi.Router) {
 		sub.Use(customMiddleware.RateLimit(5, time.Minute, cfg.TrustProxyHeaders))
-		sub.Post("/api/v1/auth/register", authHandler.Register)
-		sub.Post("/api/v1/auth/login", authHandler.Login)
 		sub.Use(customMiddleware.JWTAuth)
 
 		sub.Post("/api/v1/tutor", handlers.TutorHandler(cfg, database))

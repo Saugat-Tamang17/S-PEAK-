@@ -10,3 +10,7 @@ type googleJWK struct {
 	N   string `json:"n"` //modulus(n)
 	E   string `json:"e"` //exponent(e)
 }
+
+type googleJWKSResponse struct {
+	Keys []googleJWK `json:"keys"`
+}

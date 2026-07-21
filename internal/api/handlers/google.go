@@ -1,16 +1,25 @@
 package handlers
-import {
 
-}
+import (
+	"crypto/rsa"
+	"sync"
+	"time"
+)
 
 const googleJWKSURL = "https://www.googleapis.com/oauth2/v3/certs"
 
 type googleJWK struct {
 	Kid string `json:"kid"` //keyID pr uniqwue token for the header
-	N   string `json:"n"` //modulus(n)
-	E   string `json:"e"` //exponent(e)
+	N   string `json:"n"`   //modulus(n)
+	E   string `json:"e"`   //exponent(e)
 }
 
 type googleJWKSResponse struct {
 	Keys []googleJWK `json:"keys"`
 }
+
+var (
+	jwksMu     sync.Mutex                //for thread safety i.e concurrency baby//
+	jwksCache  map[string]*rsa.PublicKey //kind of like storage or cache where the rsa public key arranged by Kid is stored for time //
+	jwksExpiry time.Time                 // defines TTL of the keys in that map
+)

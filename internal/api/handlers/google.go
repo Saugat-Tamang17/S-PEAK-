@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const googleJWKSURL = "https://www.googleapis.com/oauth2/v3/certs"
@@ -67,4 +69,12 @@ func fetchGoogleJWKS(forceRefresh bool) (map[string]*rsa.PublicKey, error) {
 	jwksCache = keys
 	jwksExpiry = time.Now().Add(1 * time.Hour)
 	return keys, nil
+}
+
+type googleIDTokenClaims struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Name          string `json:"name"`
+	Sub           string `json:"sub"`
+	jwt.RegisteredClaims
 }

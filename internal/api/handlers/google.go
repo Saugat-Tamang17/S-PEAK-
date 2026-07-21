@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -77,4 +78,33 @@ type googleIDTokenClaims struct {
 	Name          string `json:"name"`
 	Sub           string `json:"sub"`
 	jwt.RegisteredClaims
+}
+
+func verifyGoogleIDToken(idToken, clientID string) (*googleIDTokenClaims, error) {
+	claims := &googleIDTokenClaims{}
+
+	keyFunc := func(t *jwt.Token) (interface{}, error) {
+		kid, ok := t.Header["kid"].(string)
+		if !ok {
+			return nil, errors.New("id token missing kid header")
+		}
+
+		keys, err := fetchGoogleJWKS(false)
+		if err != nil {
+			return nil, err
+		}
+		key, ok := keys[kid]
+		if !ok {
+			// Google rotates keys periodically; refresh once before failing.
+			keys, err = fetchGoogleJWKS(true)
+			if err != nil {
+				return nil, err
+			}
+			key, ok = keys[kid]
+			if !ok {
+				return nil, errors.New("unknown google signing key")
+			}
+		}
+		return key, nil
+	}
 }

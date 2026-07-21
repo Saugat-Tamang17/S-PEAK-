@@ -42,8 +42,8 @@ func GetUserByGoogleID(ctx context.Context, db *sql.DB, googleID string) (*User,
 	return u, err
 }
 
-func CreateGoogleUser(ctx context.Context, db *sql.DB, email, googleID string) error {
-	_, err := db.ExecContext(ctx, "INSERT INTO users (name,email, google_id) VALUES (?, ?, ?)", email, googleID)
+func CreateGoogleUser(ctx context.Context, db *sql.DB, name, email, googleID string) error {
+	_, err := db.ExecContext(ctx, "INSERT INTO users (name,email, google_id) VALUES (?, ?, ?)", name, email, googleID)
 	return err
 }
 

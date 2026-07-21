@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"crypto/rsa"
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -30,5 +32,9 @@ func fetchGoogleJWKS(forceRefresh bool) (map[string]*rsa.PublicKey, error) {
 
 	if !forceRefresh && jwksCache != nil && time.Now().Before(jwksExpiry) {
 		return jwksCache, nil
+	}
+	resp, err := http.Get(googleJWKSURL)
+	if err != nil {
+		return nil, fmt.Errorf("fetching google jwks: %w", err)
 	}
 }

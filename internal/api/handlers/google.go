@@ -23,3 +23,12 @@ var (
 	jwksCache  map[string]*rsa.PublicKey //kind of like storage or cache where the rsa public key arranged by Kid is stored for time //
 	jwksExpiry time.Time                 // defines TTL of the keys in that map
 )
+
+func fetchGoogleJWKS(forceRefresh bool) (map[string]*rsa.PublicKey, error) {
+	jwksMu.Lock()
+	defer jwksMu.Unlock()
+
+	if !forceRefresh && jwksCache != nil && time.Now().Before(jwksExpiry) {
+		return jwksCache, nil
+	}
+}

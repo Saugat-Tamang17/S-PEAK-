@@ -36,5 +36,17 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			http.Error(w, "invalid google token", http.StatusUnauthorized)
 			return
 		}
+
+		emailverified, _ := payload.Claims["email_verified"].(bool)
+		email, _ := payload.Claims["email"].(string)
+		name, _ := payload.Claims["name"].(string)
+		googleID, _ := payload.Subject
+		if !emailVerified || email == "" || googleID == "" {
+			http.Error(w, "google account missing required info", http.StatusUnauthorized)
+			return
+		}
+		if name == "" {
+			name = email
+		}
 	}
 }

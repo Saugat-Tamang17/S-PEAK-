@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -18,6 +19,10 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			log.Println("google auth attempted but GOOGLECLIENT_ID isnt set")
 			http.Error(w, "google sign-in is not configured", http.StatusInternalServerError)
 			return
+		}
+		var req googleAuthRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.IDtoken == "" {
+			http.Error(w, "id_token_required", http.StatusBadRequest)
 		}
 	}
 }

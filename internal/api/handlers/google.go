@@ -9,6 +9,7 @@ import (
 	"google.golang.org/api/idtoken"
 
 	"github.com/Saugat-Tamang17/S-PEAK/config"
+	"github.com/Saugat-Tamang17/S-PEAK/internal/db"
 )
 
 type googleAuthRequest struct {
@@ -48,5 +49,19 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		if name == "" {
 			name = email
 		}
-	}
-}
+
+		user,err :=db.GetUserByGoogleID(ctx,database,googleID)
+		if err !=nil{
+				if err != nil {
+			log.Printf("GetUserByGoogleID error: %v", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
+		}
+
+		}
+			
+		
+	
+

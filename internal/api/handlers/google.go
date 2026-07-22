@@ -58,12 +58,20 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		}
 
 		if user == nil {
-			existing ,err :=db.GetUserByEmail(ctx,database,email)
-			if err !=nil{
-					log.Printf("GetUserByEmail error: %v", err)
+			existing, err := db.GetUserByEmail(ctx, database, email)
+			if err != nil {
+				log.Printf("GetUserByEmail error: %v", err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
+			if existing != nil {
+				if err := db.LinkGoogleID(ctx, database, existing.ID, googleID); err != nil {
+					log.Printf("LinkGoogleID error: %v", err)
+					http.Error(w, "internal error", http.StatusInternalServerError)
+					return
+				}
+				existing.GoogleID = googleID
+				user = existing
 
 			}
 		}

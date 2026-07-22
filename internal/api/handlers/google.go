@@ -73,6 +73,13 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 				existing.GoogleID = googleID
 				user = existing
 
+				//brand new user
+			} else {
+				if err := db.CreateGoogleUser(ctx, database, name, email, googleID); err != nil {
+					log.Printf("CreateGoogleUser error: %v", err)
+					http.Error(w, "could not create account", http.StatusInternalServerError)
+					return
+				}
 			}
 		}
 	}

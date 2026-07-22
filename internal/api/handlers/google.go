@@ -80,6 +80,12 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 					http.Error(w, "could not create account", http.StatusInternalServerError)
 					return
 				}
+				user,err:=db.GetUserByGoogleID(ctx,database,googleID)
+
+				if err != nil || user == nil {
+					log.Printf("post-create lookup error: %v", err)
+					http.Error(w, "internal error", http.StatusInternalServerError)
+					return
 			}
 		}
 	}

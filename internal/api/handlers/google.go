@@ -50,18 +50,11 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			name = email
 		}
 
-		user,err :=db.GetUserByGoogleID(ctx,database,googleID)
-		if err !=nil{
-				if err != nil {
+		user, err := db.GetUserByGoogleID(ctx, database, googleID)
+		if err != nil {
 			log.Printf("GetUserByGoogleID error: %v", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-
-		}
-
-		}
-			
-		
-	
-
+	}
+}

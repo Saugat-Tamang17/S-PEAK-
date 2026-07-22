@@ -80,13 +80,25 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 					http.Error(w, "could not create account", http.StatusInternalServerError)
 					return
 				}
-				user,err:=db.GetUserByGoogleID(ctx,database,googleID)
+				user, err := db.GetUserByGoogleID(ctx, database, googleID)
 
 				if err != nil || user == nil {
 					log.Printf("post-create lookup error: %v", err)
 					http.Error(w, "internal error", http.StatusInternalServerError)
 					return
+				}
 			}
 		}
+
+		token, err := generateJWT(user.ID)
+		if err != nil {
+			log.Printf("JWT generation error: %v", err)
+			http.Error(w, "server token error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"token": token, "name": user.Name})
 	}
 }

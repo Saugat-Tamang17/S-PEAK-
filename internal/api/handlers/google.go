@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"google.golang.org/api/idtoken"
+
 	"github.com/Saugat-Tamang17/S-PEAK/config"
 )
 
@@ -23,6 +25,16 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		var req googleAuthRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.IDtoken == "" {
 			http.Error(w, "id_token_required", http.StatusBadRequest)
+			return
+		}
+		ctx := r.Context()
+		// Validate() checks signature (against Google's live JWKS), issuer,
+		// audience match, and expiry — all in one cal
+		payload, err := idtoken.Validate(ctx, req.IDtoken, cfg.GoogleClientID)
+		if err != nil {
+			log.Printf("google id verification failed : %v", err)
+			http.Error(w, "invalid google token", http.StatusUnauthorized)
+			return
 		}
 	}
 }

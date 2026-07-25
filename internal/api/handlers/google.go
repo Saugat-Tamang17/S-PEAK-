@@ -41,7 +41,7 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		emailVerified, _ := payload.Claims["email_verified"].(bool)
 		email, _ := payload.Claims["email"].(string)
 		name, _ := payload.Claims["name"].(string)
-		googleID, _ := payload.Subject
+		googleID := payload.Subject
 		if !emailVerified || email == "" || googleID == "" {
 			http.Error(w, "google account missing required info", http.StatusUnauthorized)
 			return

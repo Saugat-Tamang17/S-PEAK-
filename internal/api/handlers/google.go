@@ -38,7 +38,7 @@ func GoogleAuthHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		emailverified, _ := payload.Claims["email_verified"].(bool)
+		emailVerified, _ := payload.Claims["email_verified"].(bool)
 		email, _ := payload.Claims["email"].(string)
 		name, _ := payload.Claims["name"].(string)
 		googleID, _ := payload.Subject

@@ -68,6 +68,23 @@ export async function login(email, password) {
   return data;
 }
 
+export async function googleLogin(idToken) {
+  const res = await fetch(`${API_BASE}/api/v1/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id_token: idToken }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+
+  const data = await res.json();
+  if (data.token) setToken(data.token);
+  if (data.name) localStorage.setItem("speak_user_name", data.name);
+  return data;
+}
+
 export async function register(name,email, password) {
   const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",

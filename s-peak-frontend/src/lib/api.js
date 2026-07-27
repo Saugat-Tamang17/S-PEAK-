@@ -16,7 +16,10 @@ export function clearToken() {
 export function isAuthenticated() {
   return Boolean(getToken());
 }
-
+export function getUserName() {
+  return localStorage.getItem("speak_user_name");
+}
+ 
 function getAuthHeaders() {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};

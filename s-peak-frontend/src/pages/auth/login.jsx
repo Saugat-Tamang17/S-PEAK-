@@ -6,7 +6,7 @@ import SocialAuthDivider from "../../components/auth/socialauthdivider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { login, googleLogin } from "../../lib/api";
 
-import { login, googleLogin } from "../../lib/api";
+
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -138,7 +138,7 @@ export default function Login() {
 
    {GOOGLE_CLIENT_ID && (
         <>
-          <SocialAuthDivider onGoogleClick={triggerGoogleSignIn} />
+             <SocialAuthDivider onGoogleClick={triggerGoogleSignIn} />
           <div
             ref={hiddenButtonRef}
             style={{ position: "absolute", opacity: 0, pointerEvents: "none", top: -9999, left: -9999 }}

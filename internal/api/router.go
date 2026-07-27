@@ -36,9 +36,10 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 
 		sub.Post("/api/v1/auth/register", authHandler.Register)
 		sub.Post("/api/v1/auth/login", authHandler.Login)
+		sub.Post("/api/v1/auth/google", handlers.GoogleAuthHandler(cfg, database))
 	})
 
-	// 3. Protected Endpoints
+	// 3. Protected Endpoints yup
 	r.Group(func(sub chi.Router) {
 		// CRITICAL: Middleware declared FIRST before any routes
 		sub.Use(customMiddleware.RateLimit(10, time.Minute, cfg.TrustProxyHeaders)) // (Optional: adjust limit for logged-in users)

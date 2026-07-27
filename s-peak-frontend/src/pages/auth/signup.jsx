@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import FormField from "../../components/auth/formfield";
-import { login, register } from "../../lib/api";
+import SocialAuthDivider from "../../components/auth/socialauthdivider";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+import { login, register, googleLogin } from "../../lib/api";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -49,6 +51,20 @@ export default function SignUp() {
       setSubmitting(false);
     }
   };
+
+  const handleGoogleCredential = async (idToken) => {
+    setFormError("");
+    try {
+      await googleLogin(idToken);
+      navigate("/dashboard");
+    } catch (err) {
+      setFormError(err.message || "Google sign-in failed. Try again.");
+    }
+  };
+
+  const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(
+    handleGoogleCredential
+  );
 
   return (
     <AuthLayout
@@ -133,6 +149,12 @@ export default function SignUp() {
           {submitting ? "Creating account…" : "Create account"}
         </button>
       </form>
+
+      <SocialAuthDivider onGoogleClick={triggerGoogleSignIn} />
+      <div
+        ref={hiddenButtonRef}
+        style={{ position: "absolute", opacity: 0, pointerEvents: "none", top: -9999, left: -9999 }}
+      />
 
       <p className="mt-8 text-center text-[14px] text-[#5B6660]">
         Already have an account?{" "}

@@ -10,4 +10,8 @@ export default class ErrorBoundary extends React.Components{
   static getDerivedStateFromError(){
     return {hasError:true};
   }
+
+  componentDidCatch(error,info){
+    console.error("App Crashed :",error,info);
+  }
 }

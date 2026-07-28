@@ -37,14 +37,18 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		}
 
 		// 2. Run your database inserts safely using the 'result' object
-		sessionID, err := db.CreateSession(database, userID, "tutor") // Hardcoded user_id 1 for now
+		sessionID, err := db.CreateSession(database, userID, "tutor")
 		if err != nil {
 			log.Printf("CreateSession error: %v", err)
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
 		}
 
 		transcriptID, err := db.SaveTranscript(database, sessionID, input.Transcript, result.Corrected_answer)
 		if err != nil {
 			log.Printf("SaveTranscript error: %v", err)
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
 		}
 
 		if err := db.SaveEvaluation(database, transcriptID, input.Topic,
@@ -52,6 +56,8 @@ func TutorHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 			result.Feedback, result.Corrected_answer,
 		); err != nil {
 			log.Printf("SaveEvaluation error: %v", err)
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
 		}
 
 		// 3. Return the evaluation results directly back to the client

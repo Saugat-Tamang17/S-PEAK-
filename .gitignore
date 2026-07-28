@@ -33,3 +33,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+client_google.json
+*.json

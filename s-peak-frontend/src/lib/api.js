@@ -36,7 +36,11 @@ export async function authFetch(path, options = {}) {
     ...options,
     headers,
   });
-
+ if (res.status === 401) {
+    clearToken();
+    window.location.href = "/login";
+    throw new Error("Session expired. Please sign in again.");
+  }
   if (!res.ok) {
     throw new Error(await parseError(res));
   }

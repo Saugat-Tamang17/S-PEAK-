@@ -1,7 +1,7 @@
 import React from "react";
 
 export default class ErrorBoundary extends React.Components{
-  consturctor(pops){
+  consturctor(props){
     super(props);
     this.state={hasError:false};
 

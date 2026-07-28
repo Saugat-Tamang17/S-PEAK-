@@ -48,9 +48,7 @@ func Load() *Config {
 		FrontendURL:        os.Getenv("FRONTEND_URL"),
 		TrustProxyHeaders:  os.Getenv("TRUST_PROXY_HEADERS") == "true",
 	}
-	if len(cfg.GROQAPIKEY) >= 10 {
-		log.Printf("DEBUG key starts with: %s", cfg.GROQAPIKEY[:10])
-	}
+
 	if cfg.GROQAPIKEY == "" {
 		log.Println("WARNING:AI API KEY HAS NOT BEEN SET:")
 	}

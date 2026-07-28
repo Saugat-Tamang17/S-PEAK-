@@ -77,12 +77,6 @@ function ScorePill({ score }) {
   );
 }
 
-const gradedSessions = sessions.filter((s) => s.score !== null);
-const avgGrammar = gradedSessions.length
-  ? Math.round(gradedSessions.reduce((sum, s) => sum + s.score, 0) / gradedSessions.length)
-  : 0;
-
-
 export default function SpeakDashboard() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState("daily");
@@ -95,6 +89,11 @@ export default function SpeakDashboard() {
   const [speechSupported, setSpeechSupported] = useState(true);
   const recognitionRef = useRef(null);
   const userName = getUserName();
+
+  const gradedSessions = sessions.filter((s) => s.score !== null);
+  const avgGrammar = gradedSessions.length
+    ? Math.round(gradedSessions.reduce((sum, s) => sum + s.score, 0) / gradedSessions.length)
+    : 0;
 
   useEffect(() => {
     authFetch("/api/v1/history")
@@ -459,6 +458,13 @@ export default function SpeakDashboard() {
                   </td>
                 </tr>
               ))}
+              {!loadingHistory && sessions.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: "center", padding: "32px 24px", color: "#9ca3af" }}>
+                    No sessions yet — start your first practice above.
+                  </td>
+                </tr>
+              )}
               <tr>
                 <td colSpan={4} style={{ textAlign: "center", padding: "16px 24px" }}>
                   <span
@@ -472,13 +478,6 @@ export default function SpeakDashboard() {
                       cursor: "pointer",
                     }}
                   >
-                    {!loadingHistory && sessions.length === 0 && (
-  <tr>
-    <td colSpan={4} style={{ textAlign: "center", padding: "32px 24px", color: "#9ca3af" }}>
-      No sessions yet — start your first practice above.
-    </td>
-  </tr>
-)}
                     View Full History <ArrowRight size={14} />
                   </span>
                 </td>

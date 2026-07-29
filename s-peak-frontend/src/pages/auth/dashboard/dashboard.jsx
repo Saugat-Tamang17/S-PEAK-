@@ -135,7 +135,7 @@ export default function SpeakDashboard() {
 
     const recognition =new SpeechRecognition();
     recognition.continuous=false;
-    recognitoin.interimResults=true;
+    recognition.interimResults=true;
     recognition.lang="en-US";
 
     recognition.onresult=(event) =>{

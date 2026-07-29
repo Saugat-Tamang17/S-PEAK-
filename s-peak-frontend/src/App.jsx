@@ -3,6 +3,7 @@ import Login from "./pages/auth/login";
 import SignUp from "./pages/auth/signup";
 import Landing from "./pages/auth/landing";
 import Dashboard from "./pages/auth/dashboard/dashboard";
+import History from "./pages/auth/dashboard/history"
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {

@@ -48,6 +48,19 @@ return (
         <Link to="/profile" style={{ color: "#374151", fontSize: 14.5, textDecoration: "none" }}>
           Profile
         </Link>
+        <button
+          onClick={handleLogout}
+          style={{
+            background: "#3d5c52",
+            color: "#fff",
+            border: "none",
+            borderRadius: 999,
+            padding: "9px 20px",
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        ></button>
       }
       
   </header>

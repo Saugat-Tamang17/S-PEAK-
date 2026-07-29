@@ -95,9 +95,14 @@ export default function SpeakDashboard() {
  const [lastEvaluation, setLastEvaluation] = useState(null);
   const userName = getUserName();
 
+
+  //history rows now carry real per-skill scores( 0-10 from db),scaled to 0-100 ? for them rings //
   const gradedSessions = sessions.filter((s) => s.score !== null);
   const avgGrammar = gradedSessions.length
     ? Math.round(gradedSessions.reduce((sum, s) => sum + s.score, 0) / gradedSessions.length)
+    : 0;
+     const avgFluency = gradedSessions.length                                    // FIX: was reusing avgGrammar for both rings
+    ? Math.round(gradedSessions.reduce((sum, s) => sum + (s.fluencyScore || 0), 0) / gradedSessions.length * 10)
     : 0;
 
   useEffect(() => {

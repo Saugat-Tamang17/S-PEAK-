@@ -170,12 +170,32 @@ export default function SpeakDashboard() {
     setShowSession(true);
   };
 
-  const handleSessionEnd = (transcript, durationSeconds) => {
+  const handleSessionEnd = async (transcript, durationSeconds) => {
     setShowSession(false);
-
-    const finalTopic = topic.trim() || transcript.trim() || "Free Talk";
+    const finalTopic = topic.trim() || "Free Talk";
     const Icon = CONTEXT_ICON[selected] || MessageCircle;
-    const score = Math.floor(70 + Math.random() * 25);
+
+    if (!transcript.trim()) {
+      // nothing was said — don't call the AI, just log a zero session
+      const newSession = {
+        icon: Icon, topic: finalTopic, date: formatToday(),
+        duration: formatDuration(durationSeconds || 1),
+        overallScore: null, grammarScore: null, fluencyScore: null, contentScore: null, feedback: null,
+      };
+      setSessions((prev) => [newSession, ...prev]);
+      setHighlightIndex(0);
+      setTopic("");
+      window.setTimeout(() => setHighlightIndex(null), 1800);
+      return;
+    }
+
+    setEvaluating(true);
+    try {
+      const res = await authFetch("/api/v1/tutor", {
+        method: "POST",
+        body: JSON.stringify({ transcript, topic: finalTopic }),
+      });
+      const evalResult = await res.json();
 
     const newSession = {
       icon: Icon,

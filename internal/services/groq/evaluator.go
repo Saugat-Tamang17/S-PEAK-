@@ -30,7 +30,7 @@ Return exactly this structure:
   "content_score":  <integer 0-10>,
   "overall_score":  <integer 0-10>,
   "feedback":       "<2-3 sentences of actionable feedback>",
-  "corrected_text": "<the transcript rewritten with errors fixed>"
+  "corrected_answer": "<the transcript rewritten with errors fixed>"
 }
 Do not include any text before or after the JSON object.`
 

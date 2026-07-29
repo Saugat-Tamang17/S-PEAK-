@@ -31,5 +31,14 @@ return (
       borderBottom:"1px solid #12ba9b",
     }}
     >
+      {
+        <Link
+        to="/"
+        style={{ fontWeight: 800, fontSize: 20, letterSpacing: "0.02em", color: "#1f3d34", textDecoration: "none" }}
+      >
+        S-PEAK
+      </Link>
+      }
   </header>
+      
 )

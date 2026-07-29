@@ -89,6 +89,7 @@ export default function SpeakDashboard() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [highlightIndex, setHighlightIndex] = useState(null);
   const [speechSupported, setSpeechSupported] = useState(true);
+   const [evaluating, setEvaluating] = useState(false); 
   const recognitionRef = useRef(null);
   const userName = getUserName();
 

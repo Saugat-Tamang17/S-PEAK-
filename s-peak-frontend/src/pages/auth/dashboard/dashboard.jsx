@@ -91,6 +91,8 @@ export default function SpeakDashboard() {
   const [speechSupported, setSpeechSupported] = useState(true);
    const [evaluating, setEvaluating] = useState(false); 
   const recognitionRef = useRef(null);
+  
+ const [lastEvaluation, setLastEvaluation] = useState(null);
   const userName = getUserName();
 
   const gradedSessions = sessions.filter((s) => s.score !== null);

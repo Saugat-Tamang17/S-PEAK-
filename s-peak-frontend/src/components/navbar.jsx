@@ -20,3 +20,16 @@ const linkStyle = (path) =>({
     textDecoration: "none",
     cursor: "pointer",
 })
+return (
+  <header
+    style={{
+      display:"flex",
+      alignItems:"Center",
+      justifyContent:"Space-Between",
+      padding:"18px 40px",
+      background:"#fff",
+      borderBottom:"1px solid #12ba9b",
+    }}
+    >
+  </header>
+)

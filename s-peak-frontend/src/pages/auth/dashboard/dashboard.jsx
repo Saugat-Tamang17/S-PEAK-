@@ -132,7 +132,27 @@ export default function SpeakDashboard() {
       setSpeechSupported(false);
       return;
     }
-  })
+
+    const recognition =new SpeechRecognition();
+    recognition.continuos=false;
+    recognitoin.interimResults=true;
+    recognition.lang="en-US";
+
+    recognition.onresult=(event) =>{
+      let text ="";
+      for (let i=0;i < even.results.length;i++){
+        text +=event.rsults[i][0].transcripts;
+      }
+      setTopic(text);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    recognitionRef.current = recognition;
+    return () => recognition.stop();
+  },[]);
+
+
   const toggleListening = () => {
     if (!recognitionRef.current) return;
     if (isListening) {

@@ -140,7 +140,7 @@ export default function SpeakDashboard() {
 
     recognition.onresult=(event) =>{
       let text ="";
-      for (let i=0;i < even.results.length;i++){
+      for (let i=0;i < event.results.length;i++){
         text +=event.rsults[i][0].transcripts;
       }
       setTopic(text);

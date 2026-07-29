@@ -4,6 +4,7 @@ import SignUp from "./pages/auth/signup";
 import Landing from "./pages/auth/landing";
 import Dashboard from "./pages/auth/dashboard/dashboard";
 import History from "./pages/auth/dashboard/history"
+import Profile from "./pages/auth/dashboard/profile"
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {

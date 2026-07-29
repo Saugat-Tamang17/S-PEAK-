@@ -134,7 +134,7 @@ export default function SpeakDashboard() {
     }
 
     const recognition =new SpeechRecognition();
-    recognition.continuos=false;
+    recognition.continuous=false;
     recognitoin.interimResults=true;
     recognition.lang="en-US";
 

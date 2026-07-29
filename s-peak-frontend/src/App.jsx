@@ -21,8 +21,16 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+            {/* NEW: these two routes didn't exist before — that's why History/Profile were unreachable */}
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <History />
+          </ProtectedRoute>
+        }
+      />
+    
   );
 }
 

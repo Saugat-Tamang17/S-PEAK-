@@ -11,3 +11,12 @@ const handleLogout =()=>{
   clearToken();
   navigate("/login");
 }
+
+const linkStyle = (path) =>({
+   fontWeight: location.pathname === path ? 600 : 400,
+    color: location.pathname === path ? "#1f3d34" : "#6b7280",
+    borderBottom: location.pathname === path ? "2px solid #1f3d34" : "2px solid transparent",
+    paddingBottom: 4,
+    textDecoration: "none",
+    cursor: "pointer",
+})

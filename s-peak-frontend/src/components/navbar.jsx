@@ -60,9 +60,13 @@ return (
             fontWeight: 600,
             cursor: "pointer",
           }}
-        ></button>
+        >
+          LOGOUT
+        </button>
+        </div>
+         </header>
+        );
       }
       
-  </header>
+ 
       
-)

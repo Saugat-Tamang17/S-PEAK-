@@ -183,6 +183,7 @@ export default function SpeakDashboard() {
         overallScore: null, grammarScore: null, fluencyScore: null, contentScore: null, feedback: null,
       };
       setSessions((prev) => [newSession, ...prev]);
+      setLastEvaluation(newSession); 
       setHighlightIndex(0);
       setTopic("");
       window.setTimeout(() => setHighlightIndex(null), 1800);

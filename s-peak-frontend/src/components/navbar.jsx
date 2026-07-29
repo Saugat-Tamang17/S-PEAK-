@@ -38,7 +38,13 @@ return (
       >
         S-PEAK
       </Link>
+       <nav style={{ display: "flex", gap: 32, fontSize: 15 }}>
+        <Link to="/dashboard" style={linkStyle("/dashboard")}>Dashboard</Link>
+        {/* FIX for history: History is now a real route instead of a dead <span> */}
+        <Link to="/history" style={linkStyle("/history")}>History</Link>
+      </nav>
       }
+      
   </header>
       
 )

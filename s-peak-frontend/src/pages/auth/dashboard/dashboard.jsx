@@ -1,8 +1,10 @@
+// --- imports ---
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";               // + Link
 import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, MessageCircle } from "lucide-react";
 import SessionInProgress from "./sessionInProgress";
- import { clearToken, authFetch, getUserName } from "../../../lib/api";
+ import Navbar from "../../../components/Navbar";   // NEW: shared navbar
+import { clearToken, authFetch, getUserName } from "../../../lib/api";
 
 const CONTEXTS = [
   { id: "daily", label: "Daily Routine", icon: Coffee },

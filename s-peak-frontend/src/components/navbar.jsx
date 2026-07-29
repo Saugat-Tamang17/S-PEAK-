@@ -43,6 +43,11 @@ return (
         {/* FIX for history: History is now a real route instead of a dead <span> */}
         <Link to="/history" style={linkStyle("/history")}>History</Link>
       </nav>
+       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        {/* FIX : Profile is now a real route instead of a dead <span> */}
+        <Link to="/profile" style={{ color: "#374151", fontSize: 14.5, textDecoration: "none" }}>
+          Profile
+        </Link>
       }
       
   </header>

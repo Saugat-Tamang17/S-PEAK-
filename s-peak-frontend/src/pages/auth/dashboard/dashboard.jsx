@@ -123,6 +123,16 @@ export default function SpeakDashboard() {
       .finally(() => setLoadingHistory(false));
   }, []);
 
+
+  //new: for the initializing the speech recognition for the topic field's mic button  which was completely missing before as recognitionRef.current was always null //
+
+  useEffect(()=>{
+    const SpeechRecognition=window.SpeechRecognition ||window.webkitSpeechRecognition;
+    if (!SpeechRecognition){
+      setSpeechSupported(false);
+      return;
+    }
+  })
   const toggleListening = () => {
     if (!recognitionRef.current) return;
     if (isListening) {

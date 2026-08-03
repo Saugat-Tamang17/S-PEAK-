@@ -36,7 +36,11 @@ func TranscribeHandler(cfg *config.Config, database *sql.DB) http.HandlerFunc {
 		}
 		defer file.Close()
 
-		audioBytes, _ := io.ReadAll(file)
+		audioBytes, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "failed to read audio file", http.StatusBadRequest)
+			return
+		}
 
 		rawtranscript, err := groq.Transcribe(cfg.GROQAPIKEY, audioBytes, header.Filename)
 		if err != nil {

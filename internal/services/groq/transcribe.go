@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 )
@@ -39,7 +38,6 @@ func Transcribe(apiKey string, audioData []byte, filename string) (string, error
 
 	//this block will add groq api key to my req //
 	req.Header.Set("Authorization", "Bearer "+apiKey)
-	log.Printf("DEBUG sending auth header with key starting: %s", apiKey[:10])
 
 	//tells groq what kinda data is inside req body //
 	req.Header.Set(

@@ -98,7 +98,7 @@ type SessionRow struct {
 	Topic        *string   `json:"topic"`
 
 	//pointer to the enhanced mode , null if its in raw transcription mode //
-	GrammarScore *int    `json:"grammer-score"`
+	GrammarScore *int    `json:"grammar-score"`
 	FluencyScore *int    `json:"fluency_score"`
 	ContentScore *int    `json:"content_score"`
 	OverallScore *int    `json:"overall_score"`

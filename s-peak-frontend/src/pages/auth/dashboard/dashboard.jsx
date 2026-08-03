@@ -104,6 +104,7 @@ export default function SpeakDashboard() {
      const avgFluency = gradedSessions.length                                    // FIX: was reusing avgGrammar for both rings
     ? Math.round(gradedSessions.reduce((sum, s) => sum + (s.fluencyScore || 0), 0) / gradedSessions.length * 10)
     : 0;
+}
 
   useEffect(() => {
     authFetch("/api/v1/history")
@@ -189,6 +190,7 @@ export default function SpeakDashboard() {
       window.setTimeout(() => setHighlightIndex(null), 1800);
       return;
     }
+  }
 
     setEvaluating(true);
     try {
@@ -198,24 +200,36 @@ export default function SpeakDashboard() {
       });
       const evalResult = await res.json();
 
-    const newSession = {
-      icon: Icon,
-      topic: finalTopic,
-      date: formatToday(),
-      duration: formatDuration(durationSeconds || 1),
-      score,
-    };
+ const newSession = {
+        icon: Icon,
+        topic: finalTopic,
+        date: formatToday(),
+        duration: formatDuration(durationSeconds || 1),
+        overallScore: evalResult.overall_score,
+        grammarScore: evalResult.grammar_score,
+        fluencyScore: evalResult.fluency_score,
+        contentScore: evalResult.content_score,
+        feedback: evalResult.feedback,
+      };
 
-    setSessions((prev) => [newSession, ...prev]);
-    setHighlightIndex(0);
-    setTopic("");
-    window.setTimeout(() => setHighlightIndex(null), 1800);
-  };
+      setSessions((prev) => [newSession, ...prev]);
+      setLastEvaluation(newSession);   // NEW: drives the feedback panel shown below
+      setHighlightIndex(0);
+      setTopic("");
+      window.setTimeout(() => setHighlightIndex(null), 1800);
+    } catch (err) {
+      console.error("Evaluation failed:", err);
+      alert("Couldn't grade that session: " + err.message);
+    } finally {
+      setEvaluating(false);
+    }
+
 
   const handleLogout = () => {
     clearToken();
     navigate("/login");
   };
+
 
   return (
     <div>

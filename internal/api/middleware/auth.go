@@ -25,6 +25,10 @@ func JWTAuth(next http.Handler) http.Handler {
 
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		secret := os.Getenv("JWT_SECRET")
+		if secret == "" {
+			http.Error(w, "server misconfigured", http.StatusInternalServerError)
+			return
+		}
 
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {

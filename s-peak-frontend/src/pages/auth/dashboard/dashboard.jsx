@@ -1,19 +1,16 @@
-// --- imports ---
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";               // + Link
+import { useNavigate, Link } from "react-router-dom"; // + Link (used by "View Full History")
 import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, MessageCircle } from "lucide-react";
 import SessionInProgress from "./sessionInProgress";
- import Navbar from "../../../components/Navbar";   // NEW: shared navbar
-import { clearToken, authFetch, getUserName } from "../../../lib/api";
-
+import Navbar from "../../../components/Navbar"; // NEW: shared navbar (fixes logo/History/Profile links)
+import { authFetch, getUserName } from "../../../lib/api"; // clearToken moved into Navbar, no longer needed here
+ 
 const CONTEXTS = [
   { id: "daily", label: "Daily Routine", icon: Coffee },
   { id: "work", label: "Work", icon: Briefcase },
   { id: "travel", label: "Travel", icon: Plane },
 ];
  
-
-
 const CONTEXT_ICON = { daily: Coffee, work: Briefcase, travel: Plane };
  
 function RingStat({ label, value, iconColor }) {
@@ -51,13 +48,13 @@ function RingStat({ label, value, iconColor }) {
 function formatToday() {
   return new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
- 
+ 
 function formatDuration(totalSeconds) {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
- 
+ 
 function ScorePill({ score }) {
   const color = score >= 85 ? "#22c55e" : score >= 75 ? "#f59e0b" : "#ef4444";
   return (
@@ -78,34 +75,36 @@ function ScorePill({ score }) {
     </span>
   );
 }
-
+ 
 export default function SpeakDashboard() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState("daily");
   const [topic, setTopic] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [showSession, setShowSession] = useState(false);
-  const [sessions, setSessions] = useState([]);          // was: useState(INITIAL_SESSIONS)
+  const [sessions, setSessions] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [highlightIndex, setHighlightIndex] = useState(null);
   const [speechSupported, setSpeechSupported] = useState(true);
-   const [evaluating, setEvaluating] = useState(false); 
+  const [evaluating, setEvaluating] = useState(false); // NEW: spinner while the AI grades the session
+  const [lastEvaluation, setLastEvaluation] = useState(null); // NEW: holds feedback shown after a session ends
   const recognitionRef = useRef(null);
-  
- const [lastEvaluation, setLastEvaluation] = useState(null);
   const userName = getUserName();
-
-
-  //history rows now carry real per-skill scores( 0-10 from db),scaled to 0-100 ? for them rings //
-  const gradedSessions = sessions.filter((s) => s.score !== null);
+ 
+  // FIX (item c): sessions now carry per-skill breakdown scores (0-10 from the DB),
+  // not one fake random number. Rings below use grammar/fluency separately.
+  const gradedSessions = sessions.filter((s) => s.overallScore !== null);
   const avgGrammar = gradedSessions.length
-    ? Math.round(gradedSessions.reduce((sum, s) => sum + s.score, 0) / gradedSessions.length)
+    ? Math.round(
+        (gradedSessions.reduce((sum, s) => sum + (s.grammarScore || 0), 0) / gradedSessions.length) * 10
+      )
     : 0;
-     const avgFluency = gradedSessions.length                                    // FIX: was reusing avgGrammar for both rings
-    ? Math.round(gradedSessions.reduce((sum, s) => sum + (s.fluencyScore || 0), 0) / gradedSessions.length * 10)
+  const avgFluency = gradedSessions.length // FIX: previously this duplicated avgGrammar — now its own real average
+    ? Math.round(
+        (gradedSessions.reduce((sum, s) => sum + (s.fluencyScore || 0), 0) / gradedSessions.length) * 10
+      )
     : 0;
-}
-
+ 
   useEffect(() => {
     authFetch("/api/v1/history")
       .then((res) => res.json())
@@ -114,46 +113,54 @@ export default function SpeakDashboard() {
           icon: CONTEXT_ICON[r.mode] || MessageCircle,
           topic: r.topic || "Free Talk",
           date: new Date(r.created_at).toLocaleDateString("en-US", {
-            month: "short", day: "numeric", year: "numeric",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
           }),
-          score: r.overall_score ?? null,
+          duration: null,
+          // FIX (item c/f): keep the real breakdown + feedback instead of collapsing to one "score"
+          overallScore: r.overall_score ?? null,
+          grammarScore: r["grammer-score"] ?? null, // NOTE: backend json tag is literally "grammer-score" (typo) in queries.go
+          fluencyScore: r.fluency_score ?? null,
+          contentScore: r.content_score ?? null,
+          feedback: r.feedback ?? null,
         }));
         setSessions(mapped);
       })
       .catch((err) => console.error("Failed to load history:", err))
       .finally(() => setLoadingHistory(false));
   }, []);
-
-
-  //new: for the initializing the speech recognition for the topic field's mic button  which was completely missing before as recognitionRef.current was always null //
-
-  useEffect(()=>{
-    const SpeechRecognition=window.SpeechRecognition ||window.webkitSpeechRecognition;
-    if (!SpeechRecognition){
+ 
+  // NEW: initializes speech recognition for the Topic field's mic button.
+  // This was completely missing before — recognitionRef.current was always null,
+  // so pressing the mic button silently did nothing (root cause of complaint 2a).
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
       setSpeechSupported(false);
       return;
     }
-
-    const recognition =new SpeechRecognition();
-    recognition.continuous=false;
-    recognition.interimResults=true;
-    recognition.lang="en-US";
-
-    recognition.onresult=(event) =>{
-      let text ="";
-      for (let i=0;i < event.results.length;i++){
-        text +=event.results[i][0].transcript;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+ 
+    recognition.onresult = (event) => {
+      let text = "";
+      for (let i = 0; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
       }
       setTopic(text);
     };
     recognition.onend = () => setIsListening(false);
     recognition.onerror = () => setIsListening(false);
-
+ 
     recognitionRef.current = recognition;
-    return () => recognition.stop();
-  },[]);
-
-
+    return () => {
+      recognition.stop();
+    };
+  }, []);
+ 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
     if (isListening) {
@@ -165,33 +172,41 @@ export default function SpeakDashboard() {
       setIsListening(true);
     }
   };
-
+ 
   const startSession = () => {
     if (showSession) return;
+    setLastEvaluation(null);
     setShowSession(true);
   };
-
+ 
+  // FIX (item c/f): now actually calls POST /api/v1/tutor instead of faking a random score.
+  // The backend runs the transcript through Groq, saves the session/transcript/evaluation,
+  // and returns real grammar/fluency/content/overall scores plus written feedback.
   const handleSessionEnd = async (transcript, durationSeconds) => {
     setShowSession(false);
     const finalTopic = topic.trim() || "Free Talk";
     const Icon = CONTEXT_ICON[selected] || MessageCircle;
-
+ 
     if (!transcript.trim()) {
-      // nothing was said — don't call the AI, just log a zero session
+      // Nothing was said — log a zero/ungraded session instead of calling the AI on empty text.
       const newSession = {
-        icon: Icon, topic: finalTopic, date: formatToday(),
+        icon: Icon,
+        topic: finalTopic,
+        date: formatToday(),
         duration: formatDuration(durationSeconds || 1),
-        overallScore: null, grammarScore: null, fluencyScore: null, contentScore: null, feedback: null,
+        overallScore: null,
+        grammarScore: null,
+        fluencyScore: null,
+        contentScore: null,
+        feedback: null,
       };
       setSessions((prev) => [newSession, ...prev]);
-      setLastEvaluation(newSession); 
       setHighlightIndex(0);
       setTopic("");
       window.setTimeout(() => setHighlightIndex(null), 1800);
       return;
     }
-  }
-
+ 
     setEvaluating(true);
     try {
       const res = await authFetch("/api/v1/tutor", {
@@ -199,8 +214,8 @@ export default function SpeakDashboard() {
         body: JSON.stringify({ transcript, topic: finalTopic }),
       });
       const evalResult = await res.json();
-
- const newSession = {
+ 
+      const newSession = {
         icon: Icon,
         topic: finalTopic,
         date: formatToday(),
@@ -211,9 +226,9 @@ export default function SpeakDashboard() {
         contentScore: evalResult.content_score,
         feedback: evalResult.feedback,
       };
-
+ 
       setSessions((prev) => [newSession, ...prev]);
-      setLastEvaluation(newSession);   // NEW: drives the feedback panel shown below
+      setLastEvaluation(newSession); // NEW: drives the feedback panel rendered below
       setHighlightIndex(0);
       setTopic("");
       window.setTimeout(() => setHighlightIndex(null), 1800);
@@ -223,14 +238,8 @@ export default function SpeakDashboard() {
     } finally {
       setEvaluating(false);
     }
-
-
-  const handleLogout = () => {
-    clearToken();
-    navigate("/login");
   };
-
-
+ 
   return (
     <div>
       <style>{`
@@ -321,52 +330,18 @@ export default function SpeakDashboard() {
         }
         .pulse { animation: pulse 1.5s infinite; }
       `}</style>
-
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "18px 40px",
-          background: "#fff",
-          borderBottom: "1px solid #eceef1",
-        }}
-      >
-        <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: "0.02em", color: "#1f3d34" }}>S-PEAK</div>
-        <nav style={{ display: "flex", gap: 32, fontSize: 15 }}>
-          <span style={{ fontWeight: 600, color: "#1f3d34", borderBottom: "2px solid #1f3d34", paddingBottom: 4 }}>
-            Dashboard
-          </span>
-          <span style={{ color: "#6b7280", cursor: "pointer" }}>History</span>
-        </nav>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <span style={{ color: "#374151", fontSize: 14.5, cursor: "pointer" }}>Profile</span>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: "#3d5c52",
-              color: "#fff",
-              border: "none",
-              borderRadius: 999,
-              padding: "9px 20px",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
+ 
+      {/* FIX (item d, 2b): replaced the dead inline <header> with the shared, working <Navbar /> */}
+      <Navbar />
+ 
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 24px 60px" }}>
         <h1 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 6px 0" }}>
-  HOW'S THE DAY{userName ? `, ${userName}` : ""}.
-</h1>
+          HOW'S THE DAY{userName ? `, ${userName}` : ""}.
+        </h1>
         <p style={{ color: "#6b7280", fontSize: 15.5, margin: "0 0 32px 0" }}>
           Ready to find your quiet confidence today?
         </p>
-
+ 
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 40 }}>
           <div
             style={{
@@ -385,7 +360,7 @@ export default function SpeakDashboard() {
             <p style={{ color: "#6b7280", fontSize: 14.5, margin: "0 0 24px 0" }}>
               Select a context, then say what you'd like to talk about.
             </p>
-
+ 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
               {CONTEXTS.map(({ id, label, icon: Icon }) => {
                 const isSelected = selected === id;
@@ -421,7 +396,7 @@ export default function SpeakDashboard() {
                 );
               })}
             </div>
-
+ 
             <div style={{ marginBottom: 24 }}>
               <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 8 }}>
                 Topic
@@ -454,7 +429,7 @@ export default function SpeakDashboard() {
                 </p>
               )}
             </div>
-
+ 
             <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
               <button
                 onClick={startSession}
@@ -478,7 +453,7 @@ export default function SpeakDashboard() {
               </button>
             </div>
           </div>
-
+ 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div className="stat-card">
               <div>
@@ -500,10 +475,11 @@ export default function SpeakDashboard() {
               </div>
             </div>
             <RingStat label="Avg. Grammar" value={avgGrammar} iconColor="#3d5c52" />
-<RingStat label="Avg. Fluency" value={avgGrammar} iconColor="#1f3d34" />
+            {/* FIX (item c): this used to reuse avgGrammar too — now uses its own avgFluency */}
+            <RingStat label="Avg. Fluency" value={avgFluency} iconColor="#1f3d34" />
           </div>
         </div>
-
+ 
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 16px 0" }}>Recent Sessions</h2>
         <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #edeef2", overflow: "hidden" }}>
           <table className="sessions">
@@ -527,9 +503,19 @@ export default function SpeakDashboard() {
                     </div>
                   </td>
                   <td style={{ color: "#4b5563" }}>{s.date}</td>
-                  <td style={{ color: "#4b5563" }}>{s.duration}</td>
+                  <td style={{ color: "#4b5563" }}>{s.duration || "—"}</td>
                   <td style={{ textAlign: "right" }}>
-                    <ScorePill score={s.score} />
+                    {/* FIX (item c): breakdown by grammar/fluency/content, not just one whole score */}
+                    {s.overallScore !== null ? (
+                      <div>
+                        <ScorePill score={Math.round(s.overallScore * 10)} />
+                        <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+                          G:{s.grammarScore} F:{s.fluencyScore} C:{s.contentScore}
+                        </div>
+                      </div>
+                    ) : (
+                      <span style={{ color: "#9ca3af" }}>—</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -542,7 +528,9 @@ export default function SpeakDashboard() {
               )}
               <tr>
                 <td colSpan={4} style={{ textAlign: "center", padding: "16px 24px" }}>
-                  <span
+                  {/* FIX (item e): was a dead <span>, now a real link to the working /history page */}
+                  <Link
+                    to="/history"
                     style={{
                       color: "#374151",
                       fontSize: 14,
@@ -550,17 +538,38 @@ export default function SpeakDashboard() {
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 6,
+                      textDecoration: "none",
                       cursor: "pointer",
                     }}
                   >
                     View Full History <ArrowRight size={14} />
-                  </span>
+                  </Link>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+ 
+        {/* NEW (item f): grading spinner + AI feedback shown right after a session ends */}
+        {evaluating && (
+          <div style={{ textAlign: "center", padding: 16, color: "#6b7280" }}>Grading your session…</div>
+        )}
+        {lastEvaluation && (
+          <div
+            style={{
+              marginTop: 24,
+              background: "#fff",
+              border: "1px solid #edeef2",
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px 0" }}>Feedback on "{lastEvaluation.topic}"</h3>
+            <p style={{ color: "#374151", lineHeight: 1.6, margin: 0 }}>{lastEvaluation.feedback}</p>
+          </div>
+        )}
       </main>
+ 
       <footer
         style={{
           borderTop: "1px solid #eceef1",
@@ -579,13 +588,8 @@ export default function SpeakDashboard() {
           <span style={{ cursor: "pointer" }}>Support</span>
         </div>
       </footer>
-
-      {showSession && (
-        <SessionInProgress
-          onClose={() => setShowSession(false)}
-          onEnd={handleSessionEnd}
-        />
-      )}
+ 
+      {showSession && <SessionInProgress onClose={() => setShowSession(false)} onEnd={handleSessionEnd} />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // NEW FILE: full session history with per-skill scores and AI feedback, reachable at /history
 import React, { useState, useEffect } from "react";
-import Navbar from "../../../components/Navbar";
+import Navbar from "../../../components/navbar";
 import { authFetch } from "../../../lib/api";
 
 export default function History() {

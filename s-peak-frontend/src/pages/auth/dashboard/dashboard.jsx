@@ -120,7 +120,7 @@ export default function SpeakDashboard() {
           duration: null,
           // FIX (item c/f): keep the real breakdown + feedback instead of collapsing to one "score"
           overallScore: r.overall_score ?? null,
-          grammarScore: r["grammer-score"] ?? null, // NOTE: backend json tag is literally "grammer-score" (typo) in queries.go
+          grammarScore: r["grammar-score"] ?? null, // NOTE: backend json tag is literally "grammer-score" (typo) in queries.go
           fluencyScore: r.fluency_score ?? null,
           contentScore: r.content_score ?? null,
           feedback: r.feedback ?? null,

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom"; // + Link (used by "View Full History")
 import { Mic, Briefcase, Plane, Coffee, Download, Play, ArrowRight, MessageCircle } from "lucide-react";
 import SessionInProgress from "./sessionInProgress";
-import Navbar from "../../../components/Navbar"; // NEW: shared navbar (fixes logo/History/Profile links)
+import Navbar from "../../../components/navbar"; // NEW: shared navbar (fixes logo/History/Profile links)
 import { authFetch, getUserName } from "../../../lib/api"; // clearToken moved into Navbar, no longer needed here
  
 const CONTEXTS = [

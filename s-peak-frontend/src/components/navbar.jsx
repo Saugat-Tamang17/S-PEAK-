@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { clearToken } from "../lib/api";
+import { clearToken, isAuthenticated } from "../lib/api";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function Navbar() {
       }}
     >
       <Link
-        to="/"
+        to={isAuthenticated() ? "/dashboard" : "/"}
         style={{ fontWeight: 800, fontSize: 20, letterSpacing: "0.02em", color: "#1f3d34", textDecoration: "none" }}
       >
         S-PEAK

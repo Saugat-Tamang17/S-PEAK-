@@ -42,7 +42,7 @@ export default function History() {
               {r.overall_score !== null && (
                 <div style={{ textAlign: "right", fontSize: 13, color: "#374151" }}>
                   Overall: <strong>{r.overall_score}/10</strong><br />
-                  Grammar {r["grammer-score"]} · Fluency {r.fluency_score} · Content {r.content_score}
+                   Grammar {r["grammar-score"]} · Fluency {r.fluency_score} · Content {r.content_score}
                 </div>
               )}
             </div>

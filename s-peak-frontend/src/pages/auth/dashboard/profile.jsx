@@ -2,7 +2,7 @@
 // Built from data already available client-side (name in localStorage + /api/v1/history),
 // since there's currently no dedicated backend /me endpoint.
 import React, { useState, useEffect } from "react";
-import Navbar from "../../../components/Navbar";
+import Navbar from "../../../components/navbar";
 import { authFetch, getUserName } from "../../../lib/api";
 
 export default function Profile() {

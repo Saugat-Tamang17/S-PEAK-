@@ -64,7 +64,7 @@ export default function SignUp() {
     }
   };
 
-  const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(
+  const { googleButtonRef, ready: googleReady } = useGoogleAuth(
     handleGoogleCredential
   );
 
@@ -154,10 +154,9 @@ export default function SignUp() {
 
       {GOOGLE_CLIENT_ID && (
         <>
-          <SocialAuthDivider onGoogleClick={triggerGoogleSignIn} />
-          <div
-            ref={hiddenButtonRef}
-            style={{ position: "absolute", opacity: 0, pointerEvents: "none", top: -9999, left: -9999 }}
+          <SocialAuthDivider
+            googleButtonRef={googleButtonRef}
+            googleReady={googleReady}
           />
         </>
       )}

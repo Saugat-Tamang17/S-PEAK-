@@ -23,7 +23,7 @@ func CreateUser(ctx context.Context, db *sql.DB, name, email, hashedPassword str
 	return nil
 }
 func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, name, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE email = ?", email)
+	row := db.QueryRowContext(ctx, "SELECT id, COALESCE(name, ''), email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE email = ?", email)
 	u := &User{}
 	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.GoogleID)
 	if err == sql.ErrNoRows {
@@ -33,7 +33,7 @@ func GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error
 }
 
 func GetUserByGoogleID(ctx context.Context, db *sql.DB, googleID string) (*User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, name, email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE google_id = ?", googleID)
+	row := db.QueryRowContext(ctx, "SELECT id, COALESCE(name, ''), email, COALESCE(password_hash, ''), COALESCE(google_id, '') FROM users WHERE google_id = ?", googleID)
 	u := &User{}
 	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.GoogleID)
 	if err == sql.ErrNoRows {

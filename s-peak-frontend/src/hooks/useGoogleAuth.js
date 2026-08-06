@@ -4,18 +4,15 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 /**
  * Wires up Google Identity Services (the "Sign In With Google" ID-token
- * flow) to our own "Continue with Google" button.
- *
- * Google requires their own button to actually be present and clicked to
- * reliably trigger the consent popup (One Tap via prompt() alone can be
- * silently suppressed). So we render Google's real button into a hidden
- * container and forward clicks from our custom button to it.
+ * flow) to Google's official button. The button must remain visible and be
+ * clicked by the user; browser security prevents forwarding a click from a
+ * custom button into Google's iframe.
  *
  * @param {(idToken: string) => void} onCredential - called with the raw
  *   Google ID token once the user completes sign-in.
  */
 export function useGoogleAuth(onCredential) {
-  const hiddenButtonRef = useRef(null);
+  const googleButtonRef = useRef(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -29,17 +26,21 @@ export function useGoogleAuth(onCredential) {
     let interval;
 
     function init() {
-      if (!window.google?.accounts?.id || !hiddenButtonRef.current) return;
+      if (!window.google?.accounts?.id || !googleButtonRef.current) return;
 
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (response) => onCredential(response.credential),
       });
 
-      window.google.accounts.id.renderButton(hiddenButtonRef.current, {
+      googleButtonRef.current.replaceChildren();
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
         type: "standard",
         theme: "outline",
         size: "large",
+        shape: "rectangular",
+        text: "continue_with",
+        width: 360,
       });
 
       setReady(true);
@@ -61,18 +62,5 @@ export function useGoogleAuth(onCredential) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const triggerGoogleSignIn = () => {
-    if (!GOOGLE_CLIENT_ID) {
-      console.warn("Google sign-in is not configured.");
-      return;
-    }
-    // Programmatically click the real (hidden) Google button so the
-    // standard account chooser/consent popup opens.
-    const realButton = hiddenButtonRef.current?.querySelector(
-      'div[role="button"]'
-    );
-    realButton?.click();
-  };
-
-  return { hiddenButtonRef, triggerGoogleSignIn, ready };
+  return { googleButtonRef, ready };
 }

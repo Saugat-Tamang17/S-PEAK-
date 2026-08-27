@@ -31,5 +31,13 @@ func NewRateLimiter(limit int, window time.Duration, trustProxyHeaders bool, ena
 		enabled:           enabled,
 		cancel:            cancel,
 	}
+
 	return rl
+}
+
+// just in case the background runs then we close it gracefully type shii //
+func (rl *RateLimiter) Close() {
+	if rl.cancel != nil {
+		rl.cancel()
+	}
 }

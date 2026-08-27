@@ -69,6 +69,41 @@ func (rl *RateLimiter) cleanup(ctx context.Context) {
 		}
 	}
 }
+
+func (rl *RateLimiter) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Bypass rate limiting if disabled (useful for dev mode or local testing)
+		if !rl.enabled {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		ip := rl.getClientIP(r)
+
+		rl.mu.Lock()
+		v, exists := rl.visitors[ip]
+		now := time.Now()
+
+		if !exists || now.After(v.windowEnd) {
+			rl.visitors[ip] = &visitor{count: 1, windowEnd: now.Add(rl.window)}
+			rl.mu.Unlock()
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if v.count >= rl.limit {
+			rl.mu.Unlock()
+			w.Header().Set("Retry-After", rl.window.String())
+			http.Error(w, "too many requests, please try again later", http.StatusTooManyRequests)
+			return
+		}
+
+		v.count++
+		rl.mu.Unlock()
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (rl *RateLimiter) getClientIP(r *http.Request) string {
 	if rl.trustProxyHeaders {
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {

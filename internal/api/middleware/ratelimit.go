@@ -2,6 +2,9 @@ package middleware
 
 import (
 	"context"
+	"net"
+	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -65,4 +68,20 @@ func (rl *RateLimiter) cleanup(ctx context.Context) {
 			rl.mu.Unlock()
 		}
 	}
+}
+func (rl *RateLimiter) getClientIP(r *http.Request) string {
+	if rl.trustProxyHeaders {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			return strings.TrimSpace(strings.Split(xff, ",")[0])
+		}
+		if xri := r.Header.Get("X-Real-IP"); xri != "" {
+			return xri
+		}
+	}
+
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return ip
 }

@@ -31,7 +31,7 @@ func NewRateLimiter(limit int, window time.Duration, trustProxyHeaders bool, ena
 		enabled:           enabled,
 		cancel:            cancel,
 	}
-
+	go rl.cleanup(ctx)
 	return rl
 }
 
@@ -39,5 +39,30 @@ func NewRateLimiter(limit int, window time.Duration, trustProxyHeaders bool, ena
 func (rl *RateLimiter) Close() {
 	if rl.cancel != nil {
 		rl.cancel()
+	}
+}
+
+func (rl *RateLimiter) cleanup(ctx context.Context) {
+	//ticker will be responsible for sending the current time ,same value as  the window of ratelimiter //
+	ticker := time.NewTicker(rl.window)
+	defer ticker.Stop()
+
+	//the cleanup process will be done in he interval manner i.e clean -- stop -- clean -- stop according to the ticker //
+	for {
+		select {
+		//ctx.done() kinda signal whose value "bool" will be goingin the channel ""
+		case <-ctx.Done():
+			return
+			//ticker.C here is a channel which sends the value periodically
+		case <-ticker.C:
+			rl.mu.Lock()
+			now := time.Now()
+			for ip, v := range rl.visitors {
+				if now.After(v.windowEnd) {
+					delete(rl.visitors, ip)
+				}
+			}
+			rl.mu.Unlock()
+		}
 	}
 }

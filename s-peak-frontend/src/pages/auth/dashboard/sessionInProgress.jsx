@@ -7,7 +7,7 @@ function formatDuration(totalSeconds) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-
+const PLACEHOLDER = "S - PEAK NOW ";
 
 
 export default function SessionInProgress({ onClose, onEnd }) {

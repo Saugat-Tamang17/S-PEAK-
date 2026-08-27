@@ -1,200 +1,57 @@
-package middleware
+package api
 
 import (
-	"context"
-	"net"
-	"net/http"
-	"strings"
-	"sync"
+	"database/sql"
 	"time"
+
+	"github.com/Saugat-Tamang17/S-PEAK/config"
+	"github.com/Saugat-Tamang17/S-PEAK/internal/api/handlers"
+	appmiddleware "github.com/Saugat-Tamang17/S-PEAK/internal/api/middleware"
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
-type visitor struct {
-	count     int
-	windowEnd time.Time
-}
+// NewRouter configures the HTTP routes for the application.
+func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
+	r := chi.NewRouter()
 
-type RateLimiter struct {
-	mu                sync.RWMutex
-	visitors          map[string]*visitor
-	limit             int
-	window            time.Duration
-	trustProxyHeaders bool
-	enabled           bool
-	cancel            context.CancelFunc
-}
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{cfg.FrontendURL},
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type"},
+		MaxAge:         300,
+	}))
 
-// NewRateLimiter creates a new rate limiter and starts
-// its background cleanup goroutine.
-func NewRateLimiter(
-	limit int,
-	window time.Duration,
-	trustProxyHeaders bool,
-	enabled bool,
-) *RateLimiter {
+	// NEW: no global rate limiter here — /health is now unmetered,
+	// and each API group below gets its own appropriately-sized budget.
 
-	ctx, cancel := context.WithCancel(context.Background())
+	r.Get("/health", handlers.HealthHandler)
 
-	rl := &RateLimiter{
-		visitors:          make(map[string]*visitor),
-		limit:             limit,
-		window:            window,
-		trustProxyHeaders: trustProxyHeaders,
-		enabled:           enabled,
-		cancel:            cancel,
-	}
+	// Stricter limiter for auth endpoints (brute-force protection needs a low ceiling)
+	authLimiter := appmiddleware.NewRateLimiter(20, time.Minute, cfg.TrustProxyHeaders, true)
 
-	// Start background cleanup.
-	go rl.cleanup(ctx)
+	// Looser limiter for authenticated data endpoints a normal session hits repeatedly
+	dataLimiter := appmiddleware.NewRateLimiter(120, time.Minute, cfg.TrustProxyHeaders, true)
 
-	return rl
-}
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Route("/auth", func(r chi.Router) {
+			r.Use(authLimiter.Handler) // NEW: scoped, not global
+			r.Post("/register", (&handlers.AuthHandler{DB: database}).Register)
+			r.Post("/login", (&handlers.AuthHandler{DB: database}).Login)
+			r.Post("/google", handlers.GoogleAuthHandler(cfg, database))
+		})
 
-// RateLimit is a convenience function that creates a
-// rate limiter and returns its HTTP middleware handler.
-func RateLimit(
-	limit int,
-	window time.Duration,
-	trustProxyHeaders bool,
-) func(http.Handler) http.Handler {
-
-	rl := NewRateLimiter(
-		limit,
-		window,
-		trustProxyHeaders,
-		true,
-	)
-
-	return rl.Handler
-}
-
-// Close stops the background cleanup goroutine.
-func (rl *RateLimiter) Close() {
-	if rl.cancel != nil {
-		rl.cancel()
-	}
-}
-
-// cleanup periodically removes expired visitors.
-func (rl *RateLimiter) cleanup(ctx context.Context) {
-
-	// The ticker produces a tick every rl.window.
-	ticker := time.NewTicker(rl.window)
-	defer ticker.Stop()
-
-	for {
-		select {
-
-		// Stop cleanup when the context is cancelled.
-		case <-ctx.Done():
-			return
-
-		// Perform cleanup every time the ticker fires.
-		case <-ticker.C:
-
-			rl.mu.Lock()
-
-			now := time.Now()
-
-			for ip, v := range rl.visitors {
-				if now.After(v.windowEnd) {
-					delete(rl.visitors, ip)
-				}
-			}
-
-			rl.mu.Unlock()
-		}
-	}
-}
-
-// Handler is the actual HTTP middleware.
-func (rl *RateLimiter) Handler(next http.Handler) http.Handler {
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		// If rate limiting is disabled,
-		// allow the request immediately.
-		if !rl.enabled {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Determine the client's IP address.
-		ip := rl.getClientIP(r)
-
-		rl.mu.Lock()
-
-		v, exists := rl.visitors[ip]
-		now := time.Now()
-
-		// No existing visitor OR previous window expired.
-		if !exists || now.After(v.windowEnd) {
-
-			rl.visitors[ip] = &visitor{
-				count:     1,
-				windowEnd: now.Add(rl.window),
-			}
-
-			rl.mu.Unlock()
-
-			// Allow the request.
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Request limit has been reached.
-		if v.count >= rl.limit {
-
-			rl.mu.Unlock()
-
-			w.Header().Set(
-				"Retry-After",
-				rl.window.String(),
-			)
-
-			http.Error(
-				w,
-				"too many requests, please try again later",
-				http.StatusTooManyRequests,
-			)
-
-			return
-		}
-
-		// Request is allowed, increment request count.
-		v.count++
-
-		rl.mu.Unlock()
-
-		next.ServeHTTP(w, r)
+		r.Group(func(r chi.Router) {
+			r.Use(appmiddleware.JWTAuth)
+			r.Use(dataLimiter.Handler) // NEW: scoped, not global
+			r.Post("/transcription", handlers.TranscribeHandler(cfg, database))
+			r.Post("/tutor", handlers.TutorHandler(cfg, database))
+			r.Get("/history", handlers.HistoryHandler(database))
+		})
 	})
-}
 
-// getClientIP determines the IP address of the requester.
-func (rl *RateLimiter) getClientIP(r *http.Request) string {
-
-	// Only trust proxy headers when explicitly enabled.
-	if rl.trustProxyHeaders {
-
-		// X-Forwarded-For may contain multiple IP addresses.
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			return strings.TrimSpace(
-				strings.Split(xff, ",")[0],
-			)
-		}
-
-		// Check X-Real-IP if X-Forwarded-For is unavailable.
-		if xri := r.Header.Get("X-Real-IP"); xri != "" {
-			return strings.TrimSpace(xri)
-		}
-	}
-
-	// Fall back to the direct connection address.
-	ip, _, err := net.SplitHostPort(r.RemoteAddr)
-
-	if err != nil {
-		return r.RemoteAddr
-	}
-
-	return ip
+	return r
 }

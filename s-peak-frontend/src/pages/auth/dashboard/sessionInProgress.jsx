@@ -7,7 +7,7 @@ function formatDuration(totalSeconds) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-const PLACEHOLDER = "I think the most important aspect of effective communication is...";
+
 
 
 export default function SessionInProgress({ onClose, onEnd }) {

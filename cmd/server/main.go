@@ -47,5 +47,4 @@ func main() {
 		log.Fatalf("Server failed: %v", err)
 	}
 
-	log.Println("Day 2 complete. Nothing is running yet — that comes later.")
 }

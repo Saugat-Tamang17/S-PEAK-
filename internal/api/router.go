@@ -1,55 +1,200 @@
-package api
+package middleware
 
 import (
-	"database/sql"
+	"context"
+	"net"
+	"net/http"
+	"strings"
+	"sync"
 	"time"
-
-	"github.com/Saugat-Tamang17/S-PEAK/config"
-	"github.com/Saugat-Tamang17/S-PEAK/internal/api/handlers"
-
-	customMiddleware "github.com/Saugat-Tamang17/S-PEAK/internal/api/middleware"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 )
 
-func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
-	r := chi.NewRouter()
+type visitor struct {
+	count     int
+	windowEnd time.Time
+}
 
-	// 1. Global Middleware (Uses chi's built-in middleware package)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{cfg.FrontendURL},
-		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization"},
-	}))
+type RateLimiter struct {
+	mu                sync.RWMutex
+	visitors          map[string]*visitor
+	limit             int
+	window            time.Duration
+	trustProxyHeaders bool
+	enabled           bool
+	cancel            context.CancelFunc
+}
 
-	// 2. Public Endpoints
-	r.Get("/health", handlers.HealthHandler)
+// NewRateLimiter creates a new rate limiter and starts
+// its background cleanup goroutine.
+func NewRateLimiter(
+	limit int,
+	window time.Duration,
+	trustProxyHeaders bool,
+	enabled bool,
+) *RateLimiter {
 
-	authHandler := &handlers.AuthHandler{DB: database}
-	r.Group(func(sub chi.Router) {
-		// Apply the rate limiter specifically to these authentication routes
-		sub.Use(customMiddleware.RateLimit(5, time.Minute, cfg.TrustProxyHeaders))
+	ctx, cancel := context.WithCancel(context.Background())
 
-		sub.Post("/api/v1/auth/register", authHandler.Register)
-		sub.Post("/api/v1/auth/login", authHandler.Login)
-		sub.Post("/api/v1/auth/google", handlers.GoogleAuthHandler(cfg, database))
+	rl := &RateLimiter{
+		visitors:          make(map[string]*visitor),
+		limit:             limit,
+		window:            window,
+		trustProxyHeaders: trustProxyHeaders,
+		enabled:           enabled,
+		cancel:            cancel,
+	}
+
+	// Start background cleanup.
+	go rl.cleanup(ctx)
+
+	return rl
+}
+
+// RateLimit is a convenience function that creates a
+// rate limiter and returns its HTTP middleware handler.
+func RateLimit(
+	limit int,
+	window time.Duration,
+	trustProxyHeaders bool,
+) func(http.Handler) http.Handler {
+
+	rl := NewRateLimiter(
+		limit,
+		window,
+		trustProxyHeaders,
+		true,
+	)
+
+	return rl.Handler
+}
+
+// Close stops the background cleanup goroutine.
+func (rl *RateLimiter) Close() {
+	if rl.cancel != nil {
+		rl.cancel()
+	}
+}
+
+// cleanup periodically removes expired visitors.
+func (rl *RateLimiter) cleanup(ctx context.Context) {
+
+	// The ticker produces a tick every rl.window.
+	ticker := time.NewTicker(rl.window)
+	defer ticker.Stop()
+
+	for {
+		select {
+
+		// Stop cleanup when the context is cancelled.
+		case <-ctx.Done():
+			return
+
+		// Perform cleanup every time the ticker fires.
+		case <-ticker.C:
+
+			rl.mu.Lock()
+
+			now := time.Now()
+
+			for ip, v := range rl.visitors {
+				if now.After(v.windowEnd) {
+					delete(rl.visitors, ip)
+				}
+			}
+
+			rl.mu.Unlock()
+		}
+	}
+}
+
+// Handler is the actual HTTP middleware.
+func (rl *RateLimiter) Handler(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// If rate limiting is disabled,
+		// allow the request immediately.
+		if !rl.enabled {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Determine the client's IP address.
+		ip := rl.getClientIP(r)
+
+		rl.mu.Lock()
+
+		v, exists := rl.visitors[ip]
+		now := time.Now()
+
+		// No existing visitor OR previous window expired.
+		if !exists || now.After(v.windowEnd) {
+
+			rl.visitors[ip] = &visitor{
+				count:     1,
+				windowEnd: now.Add(rl.window),
+			}
+
+			rl.mu.Unlock()
+
+			// Allow the request.
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Request limit has been reached.
+		if v.count >= rl.limit {
+
+			rl.mu.Unlock()
+
+			w.Header().Set(
+				"Retry-After",
+				rl.window.String(),
+			)
+
+			http.Error(
+				w,
+				"too many requests, please try again later",
+				http.StatusTooManyRequests,
+			)
+
+			return
+		}
+
+		// Request is allowed, increment request count.
+		v.count++
+
+		rl.mu.Unlock()
+
+		next.ServeHTTP(w, r)
 	})
+}
 
-	// 3. Protected Endpoints yup
-	r.Group(func(sub chi.Router) {
-		// CRITICAL: Middleware declared FIRST before any routes
-		sub.Use(customMiddleware.RateLimit(10, time.Minute, cfg.TrustProxyHeaders)) // (Optional: adjust limit for logged-in users)
-		sub.Use(customMiddleware.JWTAuth)
+// getClientIP determines the IP address of the requester.
+func (rl *RateLimiter) getClientIP(r *http.Request) string {
 
-		// Now these routes are fully secured by both layers of middleware
-		sub.Post("/api/v1/tutor", handlers.TutorHandler(cfg, database))
-		sub.Post("/api/v1/transcription", handlers.TranscribeHandler(cfg, database))
-		sub.Get("/api/v1/history", handlers.HistoryHandler(database))
-	})
+	// Only trust proxy headers when explicitly enabled.
+	if rl.trustProxyHeaders {
 
-	return r
+		// X-Forwarded-For may contain multiple IP addresses.
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			return strings.TrimSpace(
+				strings.Split(xff, ",")[0],
+			)
+		}
+
+		// Check X-Real-IP if X-Forwarded-For is unavailable.
+		if xri := r.Header.Get("X-Real-IP"); xri != "" {
+			return strings.TrimSpace(xri)
+		}
+	}
+
+	// Fall back to the direct connection address.
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+
+	if err != nil {
+		return r.RemoteAddr
+	}
+
+	return ip
 }

@@ -20,3 +20,16 @@ type RateLimiter struct {
 	enabled           bool
 	cancel            context.CancelFunc
 }
+
+func NewRateLimiter(limit int, window time.Duration, trustProxyHeaders bool, enabled bool) *RateLimiter {
+	ctx, cancel := context.WithCancel(context.Background())
+	rl := &RateLimiter{
+		visitors:          make(map[string]*visitor),
+		limit:             limit,
+		window:            window,
+		trustProxyHeaders: trustProxyHeaders,
+		enabled:           enabled,
+		cancel:            cancel,
+	}
+	return rl
+}

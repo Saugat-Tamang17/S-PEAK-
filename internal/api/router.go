@@ -34,7 +34,7 @@ func NewRouter(cfg *config.Config, database *sql.DB) *chi.Mux {
 	authLimiter := appmiddleware.NewRateLimiter(20, time.Minute, cfg.TrustProxyHeaders, true)
 
 	// Looser limiter for authenticated data endpoints a normal session hits repeatedly
-	dataLimiter := appmiddleware.NewRateLimiter(120, time.Minute, cfg.TrustProxyHeaders, true)
+	dataLimiter := appmiddleware.NewRateLimiter(200, time.Minute, cfg.TrustProxyHeaders, true)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {

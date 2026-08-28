@@ -75,7 +75,10 @@ export default function SessionInProgress({ onClose, onEnd }) {
         }
       }
     };
-    recognition.onerror = () => {};
+    recognition.onerror = (event) => {
+      console.error("Speech Recognition Error:", event.error);
+    }
+    ;
 
     recognitionRef.current = recognition;
     try {
@@ -85,7 +88,7 @@ export default function SessionInProgress({ onClose, onEnd }) {
     }
 
     return () => {
-      endedRef.current = true;
+      endedRef.current = false;
       recognition.stop();
     };
   }, []);
@@ -108,6 +111,7 @@ export default function SessionInProgress({ onClose, onEnd }) {
     clearInterval(timerRef.current);
     recognitionRef.current?.stop();
     const finalText = (finalTranscriptRef.current + interim).trim();
+    console.log("FINAL TEXT CAPTURED IN MODAL:", finalText);
     onEnd(finalText, elapsed);
   };
 
@@ -157,7 +161,7 @@ export default function SessionInProgress({ onClose, onEnd }) {
 
       {/* Close */}
       <button
-        onClick={handleClose}
+        onClick={handleEnd}
         style={{
           position: "absolute",
           top: 28,
